@@ -4,11 +4,17 @@ skadi <- function(x, y,
                   grubbs.threshold = 0.05,
                   diagnostic.plot = T,
                   euclid.outlier.check = F,
-                  give.uncorrected.p.value = F){
+                  give.uncorrected.p.value = F,
+                  xlab = "x",
+                  ylab = "y"){
 
 
   library(bootstrap)
   library(outliers)
+
+  if (max.distance > 1) {
+    warning("Detection of more than one outlier is still in development! Be extra critical.")
+  }
 
   cor.data = data.frame(x = x, y = y)
   correlation.stats = c()
@@ -69,6 +75,9 @@ skadi <- function(x, y,
       return.this = cor.test(x = cor.data$x,
                              y = cor.data$y,
                              method = method)
+      if(max.distance == 1){
+      return.this$outlier = NA
+      }
       if(!give.uncorrected.p.value){
         return.this$p.value = min((return.this$p.value * (nrow(cor.data)/(nrow(cor.data)-1)))/(1-grubbs.threshold), 1)
       }
@@ -84,8 +93,8 @@ skadi <- function(x, y,
          xlim = c(min(cor.data$x, na.rm = T), max(cor.data$x, na.rm = T)),
          ylim = c(min(cor.data$y, na.rm = T), max(cor.data$y, na.rm = T)),
          main = "outliers in red",
-         xlab = "x",
-         ylab = "y")
+         xlab = xlab,
+         ylab = ylab)
       points(x = cor.data[outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$x,
              y = cor.data[outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$y,
              col = 'red')
@@ -97,6 +106,9 @@ skadi <- function(x, y,
     return.this = cor.test(x = cor.data[-outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$x,
                    y = cor.data[-outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$y,
                    method = method)
+    if(max.distance == 1){
+    return.this$outlier = outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]]
+    }
     if(!give.uncorrected.p.value){
       return.this$p.value = min((return.this$p.value * (nrow(cor.data)/(nrow(cor.data)-1)))/(1-grubbs.threshold), 1)
     }
@@ -108,6 +120,9 @@ skadi <- function(x, y,
     return.this = cor.test(x = cor.data$x,
                            y = cor.data$y,
                            method = method)
+    if(max.distance == 1){
+    return.this$outlier = NA
+    }
     if(!give.uncorrected.p.value){
       return.this$p.value = min((return.this$p.value * (nrow(cor.data)/(nrow(cor.data)-1)))/(1-grubbs.threshold), 1)
     }
