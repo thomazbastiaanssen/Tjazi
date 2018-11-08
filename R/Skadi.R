@@ -81,8 +81,8 @@ skadi <- function(x, y,
     if(diagnostic.plot){
     plot(x = cor.data[-outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$x,
          y = cor.data[-outlier.suspects[[grubbres.full[which.min(grubbres.full$p.value),1]]],]$y,
-         xlim = c(min(cor.data$x), max(cor.data$x)),
-         ylim = c(min(cor.data$y), max(cor.data$y)),
+         xlim = c(min(cor.data$x, na.rm = T), max(cor.data$x, na.rm = T)),
+         ylim = c(min(cor.data$y, na.rm = T), max(cor.data$y, na.rm = T)),
          main = "outliers in red",
          xlab = "x",
          ylab = "y")
