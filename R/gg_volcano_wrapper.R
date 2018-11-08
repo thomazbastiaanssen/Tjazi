@@ -4,10 +4,14 @@ gg_volcano_wrapper <- function(DA_df,
                                pal.name         = "YlGnBu",
                                xlab             = "Effect Size",
                                ylab             = "log(p-value)",
+                               title            = NULL,
                                e.name.threshold = 1,
                                p.name.threshold = 0.05,
                                repel            = T,
-                               labelsize        = 2){
+                               labelsize        = 2,
+                               ylim             = c(0.01, 1),
+                               xlim             = c(-3.5, 3.5)
+                               ){
   library(RColorBrewer)
   library(ggrepel)
   plot_df = DA_df
@@ -29,12 +33,15 @@ gg_volcano_wrapper <- function(DA_df,
     geom_vline(xintercept = e.vals,
                col        = "red",
                linetype   = "dashed") +
-    scale_y_log10()+
+    scale_y_log10(limits = ylim)+
+    scale_x_continuous(limits = xlim)+
     scale_fill_manual(values = cols.used,
                       name   = "Legend") +
     theme_bw() +
     xlab(xlab) +
     ylab(ylab) +
+    ggtitle(title)+
+    theme(plot.title = element_text(hjust = 0.5)) +
     theme(aspect.ratio = 1)
   if(repel){
     volcano = volcano + geom_text_repel(size = labelsize)
