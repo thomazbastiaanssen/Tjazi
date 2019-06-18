@@ -42,9 +42,9 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
                              conds = grouplabels,
                              mc.samples = mc.samples, denom="all", verbose=TRUE, useMC= useMC)
     print("done with clr transform")
-    reads.eff   <- aldex.effect(reads.clr, grouplabels, verbose = TRUE, include.sample.summary = FALSE, useMC = useMC)
+    reads.eff   <- aldex.effect(reads.clr, verbose = TRUE, include.sample.summary = FALSE, useMC = useMC)
     print("done with effect size")
-    reads.tes   <- aldex.ttest(reads.clr, grouplabels)
+    reads.tes   <- aldex.ttest(reads.clr)
     print("done with ttest")
     if(use.splosh){
       if(parametric) {

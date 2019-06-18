@@ -10,7 +10,8 @@ gg_volcano_wrapper <- function(DA_df,
                                repel            = T,
                                labelsize        = 2,
                                ylim             = c(0.01, 1),
-                               xlim             = c(-3.5, 3.5)
+                               xlim             = c(-3.5, 3.5), 
+                               pointsize        = 4
                                ){
   library(RColorBrewer)
   library(ggrepel)
@@ -26,7 +27,7 @@ gg_volcano_wrapper <- function(DA_df,
              y     = plot_df[,2],
              fill  = cut((plot_df)[,2], c(0, p.vals, 1)),
              label = plot_df[,1])) +
-    geom_point(shape = 21) +
+    geom_point(shape = 21, size = pointsize) +
     geom_hline(yintercept = p.vals,
                col = cols.used[length(p.vals):1],
                linetype = "dashed") +
