@@ -51,7 +51,3 @@ skadi_tvers <- function(x_vector, y_vector, method = "spearman"){
   return(resultList)
 }
 
-
-
-testList    <- skadi_tvers(x_vector = species.exp, 
-                           y_vector = metadata)
