@@ -29,14 +29,14 @@ skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T){
   return(res_df_cor)
 }
 
-skadi_tvers <- function(x_vector, y_vector, method = "spearman"){
+skadi_tvers <- function(x_vector, y_vector, method = "spearman", posthoc = T){
   q_df <- data.frame(names = row.names(x_vector))
   r_df <- data.frame(names = row.names(x_vector))
   
   for(column in 1:ncol(y_vector)){
     skadi_kryss_output <-skadi_kryss(x_vector = x_vector, 
                                      y_metric = unlist(y_vector[,column]), 
-                                     method = method)
+                                     method = method, posthoc = posthoc)
     
     q_df[,column] <- skadi_kryss_output$q.value
     r_df[,column] <- skadi_kryss_output$statistic
