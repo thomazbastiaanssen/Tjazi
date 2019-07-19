@@ -1,4 +1,4 @@
-skadi_kryss <- function(x_vector, y_metric, method = "spearman"){
+skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T){
   res_df_cor = data.frame(p.value   = rep(NA,   nrow(x_vector)), 
                           statistic = rep(NA,   nrow(x_vector)), 
                           out.index = rep(TRUE, nrow(x_vector)))
@@ -23,8 +23,9 @@ skadi_kryss <- function(x_vector, y_metric, method = "spearman"){
     res_df_cor[microbe,]$statistic = skres$estimate
     res_df_cor[microbe,]$out.index = skres$outlier
   }
+  if(posthoc){
   res_df_cor$q.value = qvalue(p = res_df_cor$p.value)$qvalues
-  
+  }
   return(res_df_cor)
 }
 
