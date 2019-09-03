@@ -2,7 +2,7 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
                                  mc.samples = 1000, denom          = "all",
                                  verbose    = TRUE, useMC          = F,
                                  parametric = F   , ignore.posthoc = F,
-                                 use.splosh = F,
+                                 paired.test = FALSE,   use.splosh = F,
                                  p.threshold = c(0.1),
                                  e.threshold = 1,
                                  xmin = -2.5,
@@ -44,7 +44,7 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
     print("done with clr transform")
     reads.eff   <- aldex.effect(reads.clr, verbose = TRUE, include.sample.summary = FALSE, useMC = useMC)
     print("done with effect size")
-    reads.tes   <- aldex.ttest(reads.clr)
+    reads.tes   <- aldex.ttest(reads.clr, paired.test = paired.test)
     print("done with ttest")
     if(use.splosh){
       if(parametric) {
