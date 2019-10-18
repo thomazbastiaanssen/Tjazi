@@ -11,7 +11,8 @@ gg_volcano_wrapper <- function(DA_df,
                                labelsize        = 2,
                                ylim             = c(0.01, 1),
                                xlim             = c(-3.5, 3.5), 
-                               pointsize        = 4
+                               pointsize        = 4 ,
+                               hide.legend      = FALSE
                                ){
   library(RColorBrewer)
   library(ggrepel)
@@ -38,6 +39,7 @@ gg_volcano_wrapper <- function(DA_df,
     scale_x_continuous(limits = xlim)+
     scale_fill_manual(values = cols.used,
                       name   = "Legend") +
+
     theme_bw() +
     xlab(xlab) +
     ylab(ylab) +
@@ -48,6 +50,9 @@ gg_volcano_wrapper <- function(DA_df,
     volcano = volcano + geom_text_repel(size = labelsize)
   } else {
     volcano = volcano + geom_text(size = labelsize)
+  }
+  if(hide.legend){
+    volcano = volcano + theme(legend.position = "none")
   }
   volcano
 }
