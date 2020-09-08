@@ -1,4 +1,4 @@
-skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T){
+skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T, uncorrected = F){
   res_df_cor = data.frame(p.value   = rep(NA,   nrow(x_vector)), 
                           statistic = rep(NA,   nrow(x_vector)), 
                           out.index = rep(TRUE, nrow(x_vector)))
@@ -9,13 +9,13 @@ skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T){
                    y = y_metric, 
                    method = method, 
                    euclid.outlier.check = T, diagnostic.plot = F,
-                   max.distance = 1, give.uncorrected.p.value = F, 
+                   max.distance = 1, give.uncorrected.p.value = uncorrected, 
     )
     skres = skadi(x = unlist(x_vector[microbe,]), 
                   y = y_metric, 
                   method = method, 
                   euclid.outlier.check = T,
-                  max.distance = 1, give.uncorrected.p.value = T, 
+                  max.distance = 1, give.uncorrected.p.value = uncorrected, 
                   xlab=paste(strsplit(row.names(x_vector[microbe,]), split = ".*D_4__" ),
                              "\n p = ", skresp$p.value))
     
@@ -29,14 +29,15 @@ skadi_kryss <- function(x_vector, y_metric, method = "spearman", posthoc = T){
   return(res_df_cor)
 }
 
-skadi_tvers <- function(x_vector, y_vector, method = "spearman", posthoc = T){
+skadi_tvers <- function(x_vector, y_vector, method = "spearman", posthoc = T, uncorrected = T){
   q_df <- data.frame(names = row.names(x_vector))
   r_df <- data.frame(names = row.names(x_vector))
   
   for(column in 1:ncol(y_vector)){
     skadi_kryss_output <-skadi_kryss(x_vector = x_vector, 
                                      y_metric = unlist(y_vector[,column]), 
-                                     method = method, posthoc = posthoc)
+                                     method = method, posthoc = posthoc, 
+                                     uncorrected = uncorrected)
     
     q_df[,column] <- skadi_kryss_output$q.value
     r_df[,column] <- skadi_kryss_output$statistic
