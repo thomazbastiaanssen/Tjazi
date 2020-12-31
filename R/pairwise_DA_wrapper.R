@@ -40,12 +40,18 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
     grouplabels <- c(labA, labB)
     reads.clr   <- aldex.clr(reads = data.frame(readsA, readsB),
                              conds = grouplabels,
-                             mc.samples = mc.samples, denom="all", verbose=TRUE, useMC= useMC)
-    print("done with clr transform")
-    reads.eff   <- aldex.effect(reads.clr, verbose = TRUE, include.sample.summary = FALSE, useMC = useMC)
-    print("done with effect size")
+                             mc.samples = mc.samples, denom="all", verbose = verbose, useMC = useMC)
+    if(verbose){
+      print("done with clr transform")
+      }
+    reads.eff   <- aldex.effect(reads.clr, verbose = verbose, include.sample.summary = FALSE, useMC = useMC)
+    if(verbose){
+      print("done with effect size")
+      }
     reads.tes   <- aldex.ttest(reads.clr, paired.test = paired.test)
-    print("done with ttest")
+    if(verbose){
+      print("done with ttest")
+      }
     if(use.splosh){
       if(parametric) {
       reads.tes$cFDR   <- unlist(splosh(reads.tes$we.ep, dplaces = 10)[1]) # reads.tes$we.ep # unlist(qvalue(reads.tes$we.ep)[3])#
@@ -54,6 +60,7 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
         reads.tes$cFDR <- unlist(splosh(reads.tes$wi.ep, dplaces = 10)[1]) # reads.tes$wi.ep # unlist(qvalue(reads.tes$wi.ep)[3])#
       }
     }
+    if(verbose){
     low.p <-  which(reads.tes[,test.type] <  p.threshold[1])
     high.e <- which(abs(reads.eff$effect) >= e.threshold)
     print(paste("low", ptype, sep = "."))
@@ -91,6 +98,7 @@ pairwise_DA_wrapper  <- function(reads, groups, comparisons,
       points(reads.eff$effect[high.e], reads.tes[,test.type][high.e],
              col=rgb(1,0,0,0.5),
              cex=0.8)
+    }
     }
 
     add_df           <- data.frame(rownames(reads.tes),reads.tes[,test.type], reads.eff$effect)
