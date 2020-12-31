@@ -1,7 +1,7 @@
 #Functional wrapper to get the output of the wonderful iNext library in the format I use to pipe into ggplot2. 
 
 library(iNEXT)
-get_asymptotic_alpha = function(species, groups = c() ){
+get_asymptotic_alpha = function(species, groups = c(), verbose = TRUE ){
 
   #create output df
   alpha_diversity <- data.frame(chao1              = rep(NA, ncol(species)), 
@@ -14,11 +14,15 @@ get_asymptotic_alpha = function(species, groups = c() ){
     
     raw_observation                            = species[,samp]
     observations                               = raw_observation[raw_observation!= 0]
-    print(paste("Processing sample ", samp, "of ", ncol(species)))
+    if(verbose){
+      print(paste("Processing sample ", samp, "of ", ncol(species)))
+    }
     alpha_diversity[samp,"chao1"]              = ChaoSpecies(x = observations,datatype = "abundance")$Estimator
     alpha_diversity[samp,"asymptotic_simps"]   =  EstSimpson(x = observations,datatype = "abundance")$Estimator
     alpha_diversity[samp,"asymptotic_shannon"] = ChaoEntropy(x = observations,datatype = "abundance")$Estimator
-    print(paste("finished with sample ", samp, " out of ", ncol(species)))
+    if(verbose){
+      print(paste("finished with sample ", samp, " out of ", ncol(species)))
+    }
   }
   if(length(metadata) == ncol(species)){
     alpha_diversity <-(cbind(alpha_diversity, group = groups))
