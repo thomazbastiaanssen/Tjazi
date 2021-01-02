@@ -25,7 +25,7 @@ get.aldex.exp = function(clr, useMC = TRUE, verbose = TRUE){
     })
  
   
-  clr.exp = data.frame(matrix(unlist(clr.list), nrow = nr, byrow=T),stringsAsFactors=FALSE)
+  clr.exp = data.frame(matrix(unlist(clr.list), nrow = nr, byrow = F),stringsAsFactors=FALSE)
   row.names(clr.exp) = rn
   colnames(clr.exp)  = cn
   
