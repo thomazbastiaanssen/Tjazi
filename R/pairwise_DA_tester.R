@@ -1,4 +1,4 @@
-pairwise.DA.test = function (clr, groups, comparisons, 
+pairwise_DA_tester = function (clr, groups, comparisons, 
                              verbose = TRUE, parametric = T, 
                              ignore.posthoc = F, 
                              paired.test = FALSE){
