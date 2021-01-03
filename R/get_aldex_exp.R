@@ -1,4 +1,4 @@
-get.aldex.exp = function(clr, useMC = TRUE, verbose = TRUE){
+get_aldex_exp = function(clr, useMC = TRUE, verbose = TRUE){
   is.multicore = FALSE
   if ("BiocParallel" %in% rownames(installed.packages()) & 
       useMC) {
