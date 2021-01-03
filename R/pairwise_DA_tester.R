@@ -1,11 +1,17 @@
 pairwise_DA_tester = function (clr, groups, comparisons, 
-                             verbose = TRUE, parametric = T, 
-                             ignore.posthoc = F, 
-                             paired.test = FALSE){
+                               verbose = TRUE, parametric = T, 
+                               ignore.posthoc = F, 
+                               posthoc.method = "BH",
+                               paired.test = FALSE){
   
   #Define colnames for output
   pval_name = "p.value"
-  if(!ignore.posthoc){pval_name = "BH.adjusted.p.value"}
+  if(!ignore.posthoc){
+    pval_name = paste(posthoc.method, ".adjusted.p.value", sep = "")
+    if(posthoc.method == "Storey"){
+      pval_name = "Q.value"
+    }
+  }
   
   #Create output data.frame
   out_df = data.frame(microbe = rownames(clr))
@@ -16,13 +22,13 @@ pairwise_DA_tester = function (clr, groups, comparisons,
     comp_name <- paste(comparisons[comparison, 1], 
                        comparisons[comparison, 2], 
                        sep = " vs ")
-
+    
     #Perform the appropriate t-test
     if(parametric){
-    pvals = lapply(1:nrow(clr), function(i) t.test(
-      as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))), 
-      as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))), 
-      paired = paired.test)[c("p.value")])
+      pvals = lapply(1:nrow(clr), function(i) t.test(
+        as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))), 
+        as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))), 
+        paired = paired.test)[c("p.value")])
     } else {
       pvals = lapply(1:nrow(clr), function(i) wilcox.test(
         as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))), 
@@ -31,15 +37,15 @@ pairwise_DA_tester = function (clr, groups, comparisons,
     }
     pvals = unlist(pvals)
     
-
+    
     #Calculate appropriate effect size
     if(sum(c(groups == comparisons[comparison,1]),
-             groups == comparisons[comparison,2]) > 40 ){
-    evals = lapply(1:nrow(clr), function(i) effsize::cohen.d(
-      d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
-      f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
-      paired = paired.test,
-      hedges.correction = FALSE)[c("estimate")])
+           groups == comparisons[comparison,2]) > 40 ){
+      evals = lapply(1:nrow(clr), function(i) effsize::cohen.d(
+        d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
+        f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
+        paired = paired.test,
+        hedges.correction = FALSE)[c("estimate")])
     } else {
       evals = lapply(1:nrow(clr), function(i) effsize::cohen.d(
         d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
@@ -52,7 +58,11 @@ pairwise_DA_tester = function (clr, groups, comparisons,
     
     #Perform FDR procedure
     if(!ignore.posthoc){
-      pvals = p.adjust(p = pvals, method = "BH")
+      if(posthoc.method == "Storey"){
+        pvals = qvalue::qvalue(p = pvals)$qvalues
+      } else {
+        pvals = p.adjust(p = pvals, method = posthoc.method)
+      }
     }
     
     #Gather results per comparison
