@@ -9,6 +9,7 @@ Imports:
     vegan, 
     ggplot2, 
     reshape2
+    effsize
 License: GPLv3
 Encoding: UTF-8
 LazyData: true
