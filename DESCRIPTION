@@ -1,6 +1,6 @@
 Package: Tjazi
 Title: Microbiome Oriented Compositional Data Toolkit
-Version: 0.0.0.1
+Version: 0.1.0.0
 Authors@R: person("Thomaz", "Bastiaanssen", email = "thomaz.bastiaanssen@ucc.ie", role = c("aut", "cre"))
 Description: Microbiome oriented compositional data toolkit made during PhD at the APC microbiome in Ireland. 
 Depends: R (>= 3.4.4)
