@@ -1,7 +1,8 @@
 pairwise_glm <- function (clr, y = "microbe", model = "~ microbe", 
-            metadata, posthoc.method = "BH", 
+            metadata, posthoc.method = "BH", family = gaussian(link = "identity"),
             features.as.rownames = FALSE, verbose = TRUE) 
   {
+  if(verbose){print(family)}
     out_df = rbind()
     if(y == "microbe"){
       if(verbose){print(paste0("Running models with formula: microbe ", model))}
@@ -10,7 +11,7 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
       temp_df$microbe = unlist(clr[feature, ])
       temp_df$depend  = unlist(clr[feature, ])
       fit = summary(glm(formula = paste("depend", model, sep = " "), 
-                        data = temp_df))
+                        data = temp_df, family = family))
       out_df = rbind(out_df, t(coefficients(fit))[1:length(coefficients(fit))])
     }
     }
@@ -23,7 +24,7 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
         temp_df$microbe = unlist(clr[feature, ])
         colnames(temp_df)[colnames(temp_df) == y] = "depend"
         fit = summary(glm(formula = paste("depend", model, sep = " "), 
-                          data = temp_df))
+                          data = temp_df, family = family))
         out_df = rbind(out_df, t(coefficients(fit))[1:length(coefficients(fit))])
       }
     }
