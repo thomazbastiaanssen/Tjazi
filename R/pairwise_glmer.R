@@ -2,7 +2,7 @@ pairwise_glmer <- function(clr,
                            model = "~ . + (1|ID)", 
                            metadata, 
                            posthoc.method = "BH", 
-                           features.as.rownames = FALSE){
+                           features.as.rownames = FALSE, CI = TRUE){
   #Generate output data.frame
   out_df = rbind()
   
@@ -15,6 +15,9 @@ pairwise_glmer <- function(clr,
     
     #Remove the "df" column to standardize results
     fit_coef = coefficients(fit)[,!colnames(coefficients(fit)) == "df"]
+    
+    #Compute 95% Confidence interval and add to results
+    if(CI){fit_coef = cbind(fit_coef, car::Confint(lmer(formula = paste("depend",  model, sep = " "), data = temp_df))[,2:3])}
     
     #Collect the stats
     out_df = rbind(out_df,  t(fit_coef)[1:length(fit_coef)])
