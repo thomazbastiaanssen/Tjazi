@@ -10,7 +10,11 @@ Imports:
     ggplot2, 
     reshape2,
     effsize,
-    tidyr, 
+    compositions,
+    tidyverse,
+    car, 
+    lme4, 
+    lmerTest,
     qvalue
 License: GPLv3
 Encoding: UTF-8
