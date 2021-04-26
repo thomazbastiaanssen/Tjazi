@@ -1,0 +1,12 @@
+impute_zeroes = function(vec, method = "unif"){
+  #Find detection limit
+  DL = min(vec[vec != 0])
+  
+  if(method == "unif"){
+     vec[vec == 0] = runif(n = sum(vec == 0), min =  0.1 * DL, max = DL)
+  }
+  else if(method == "const"){
+    vec[vec == 0] = 0.65 * DL
+}
+  return(vec)
+}
