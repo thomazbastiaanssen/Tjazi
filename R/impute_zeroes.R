@@ -1,4 +1,6 @@
 impute_zeroes = function(vec, method = "unif"){
+  if(! method %in% c("unif", "const")){stop("`method` must be exactly `unif` or `const`")}
+
   #Find detection limit
   DL = min(vec[vec != 0])
   
