@@ -22,8 +22,8 @@ pairwise_glmer <- function(clr, y = "microbe",
       fit_coef = coefficients(fit)[, !colnames(coefficients(fit)) == "df"]
       
       #Compute 95% Confidence interval and add to results
-      if(CI){fit_coef = cbind(fit_coef, car::Confint(lmer(formula = paste("depend", model, sep = " "),
-                                                          data    = temp_df))[,2:3])}
+      if(CI){fit_coef = cbind(fit_coef, car::Confint(lme4::lmer(formula = paste("depend", model, sep = " "),
+                                                                data    = temp_df))[,2:3])}
       #Collect the stats
       out_df = rbind(out_df, t(fit_coef)[1:length(fit_coef)])
     }
@@ -43,8 +43,8 @@ pairwise_glmer <- function(clr, y = "microbe",
       fit_coef = coefficients(fit)[,!colnames(coefficients(fit)) == "df"]
       
       #Compute 95% Confidence interval and add to results
-      if(CI){fit_coef = cbind(fit_coef, car::Confint(lmer(formula = paste("depend", model, sep = " "),
-                                                          data    = temp_df))[,2:3])}
+      if(CI){fit_coef = cbind(fit_coef, car::Confint(lme4::lmer(formula = paste("depend", model, sep = " "),
+                                                                data    = temp_df))[,2:3])}
       #Collect the stats
       out_df = rbind(out_df,  t(fit_coef)[1:length(fit_coef)])
     }
