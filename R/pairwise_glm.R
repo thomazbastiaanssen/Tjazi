@@ -45,7 +45,8 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
     if(verbose){print("Adjusting for FDR using Storey's q-value procedure.")}
     colnames(df.bh) <- paste0(colnames(df.bh), ".Storeys.Q")
     for (j in 1:ncol(df.bh)) {
-      df.bh[, j] <- qvalue::qvalue(p = df.bh[, j])$qvalues
+      pvals = df.bh[, j]
+      df.bh[, j] <- qvalue::qvalue(p = pvals, lambda = seq(0, max(pvals), 0.05))$qvalues
     }
   }
   else {
