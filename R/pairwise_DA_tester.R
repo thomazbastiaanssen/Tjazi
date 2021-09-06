@@ -42,14 +42,14 @@ pairwise_DA_tester = function (clr, groups, comparisons,
     if(sum(c(groups == comparisons[comparison,1]),
            groups == comparisons[comparison,2]) > 40 ){
       evals = lapply(1:nrow(clr), function(i) effsize::cohen.d(
-        d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
-        f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
+        d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
+        f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
         paired = paired.test,
         hedges.correction = FALSE)[c("estimate")])
     } else {
       evals = lapply(1:nrow(clr), function(i) effsize::cohen.d(
-        d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
-        f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
+        d = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,2]]))),
+        f = as.numeric(as.character(unlist(clr[i,groups == comparisons[comparison,1]]))),
         paired = paired.test,
         hedges.correction = TRUE)[c("estimate")])
     }
