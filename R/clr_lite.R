@@ -11,9 +11,7 @@ clr_lite = function(counts, samples_are = "cols", method = "unif"){
   #Apply CLR transformation  
   if(samples_are == "cols"){counts = t(counts)}
       clr_counts = data.frame(compositions::clr(counts))
-  if(samples_are == "cols"){
-    clr_counts = t(clr_counts)
-  }
+  if(samples_are == "cols"){clr_counts = t(clr_counts)}
     clr_counts = data.frame(clr_counts)
   
     rownames(clr_counts) = rownames(counts)
