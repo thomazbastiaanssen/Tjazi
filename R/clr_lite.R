@@ -14,8 +14,10 @@ clr_lite = function(counts, samples_are = "cols", method = "unif"){
   if(samples_are == "cols"){
     clr_counts = t(clr_counts)
   }
+    clr_counts = data.frame(clr_counts)
+  
     rownames(clr_counts) = rownames(counts)
     colnames(clr_counts) = colnames(counts)
 
-    return(data.frame(clr_counts))
+    return(clr_counts)
     }
