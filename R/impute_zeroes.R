@@ -7,7 +7,7 @@ impute_zeroes = function(vec, method = "logunif"){
         vec[vec == 0] = DL/(10^(runif(n = sum(vec == 0), min =  0, max = 1)))
       }
       else if(method == "unif"){
-        vec[vec == 0] = runif(n = sum(vec == 0), min =  0, max = DL)
+        vec[vec == 0] = runif(n = sum(vec == 0), min =  0.1*DL, max = DL)
       }
       else if(method == "const"){
         vec[vec == 0] = 0.65 * DL
