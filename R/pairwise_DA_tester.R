@@ -59,7 +59,7 @@ pairwise_DA_tester = function (clr, groups, comparisons,
     #Perform FDR procedure
     if(!ignore.posthoc){
       if(posthoc.method == "Storey"){
-        pvals = qvalue::qvalue(p = pvals)$qvalues
+        pvals = qvalue::qvalue(p = pvals, lambda = seq(0, max(pvals), 0.05))$qvalues
       } else {
         pvals = p.adjust(p = pvals, method = posthoc.method)
       }
