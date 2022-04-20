@@ -17,7 +17,7 @@ get_asymptotic_alpha = function(species, groups = c(), verbose = TRUE ){
       print(paste("Processing sample ", samp, "of ", ncol(species)))
     }
     alpha_diversity[samp,"chao1"]              = iNEXT::ChaoSpecies(x = observations,datatype = "abundance")$Estimator
-    alpha_diversity[samp,"asymptotic_simps"]   = iNEXT::EstSimpson(x = observations,datatype = "abundance")$Estimator
+    alpha_diversity[samp,"asymptotic_simps"]   = iNEXT::EstSimpson( x = observations,datatype = "abundance")$Estimator
     alpha_diversity[samp,"asymptotic_shannon"] = iNEXT::ChaoEntropy(x = observations,datatype = "abundance")$Estimator
     if(verbose){
       print(paste("finished with sample ", samp, " out of ", ncol(species)))
