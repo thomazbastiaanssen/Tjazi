@@ -1,4 +1,5 @@
-#Functional wrapper to get the output of the wonderful iNext library in the format I use to pipe into ggplot2.
+#' Functional wrapper to get the output of the wonderful iNext library in the format I use to pipe into ggplot2.
+#' @export
 
 get_asymptotic_alpha = function(species, groups = c(), verbose = TRUE ){
 

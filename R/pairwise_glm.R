@@ -1,6 +1,7 @@
-pairwise_glm <- function (clr, y = "microbe", model = "~ microbe", 
+#' @export
+pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
                           metadata, posthoc.method = "BH", family = gaussian(link = "identity"),
-                          features.as.rownames = FALSE, CI = TRUE, verbose = TRUE) 
+                          features.as.rownames = FALSE, CI = TRUE, verbose = TRUE)
 {
   if(verbose){print(family)}
   out_df = rbind()
@@ -10,10 +11,10 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
       temp_df = metadata
       temp_df$microbe = unlist(clr[feature, ])
       temp_df$depend  = unlist(clr[feature, ])
-      fit = summary(glm(formula = paste("depend", model, sep = " "), 
+      fit = summary(glm(formula = paste("depend", model, sep = " "),
                         data = temp_df, family = family))
       fit_coef = coefficients(fit)[, !colnames(coefficients(fit)) == "df"]
-      if(CI){fit_coef = cbind(fit_coef, car::Confint(glm(formula = paste("depend", model, sep = " "), 
+      if(CI){fit_coef = cbind(fit_coef, car::Confint(glm(formula = paste("depend", model, sep = " "),
                                                          data = temp_df, family = family))[,2:3])}
       out_df = rbind(out_df, t(fit_coef)[1:length(fit_coef)])
     }
@@ -26,18 +27,18 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
       temp_df = metadata
       temp_df$microbe = unlist(clr[feature, ])
       colnames(temp_df)[colnames(temp_df) == y] = "depend"
-      fit = summary(glm(formula = paste("depend", model, sep = " "), 
+      fit = summary(glm(formula = paste("depend", model, sep = " "),
                         data = temp_df, family = family))
       fit_coef = coefficients(fit)[, !colnames(coefficients(fit)) == "df"]
-      if(CI){fit_coef = cbind(fit_coef, car::Confint(glm(formula = paste("depend", model, sep = " "), 
+      if(CI){fit_coef = cbind(fit_coef, car::Confint(glm(formula = paste("depend", model, sep = " "),
                                                          data = temp_df, family = family))[,2:3])}
       out_df = rbind(out_df, t(fit_coef)[1:length(fit_coef)])
-      
+
     }
   }
   out_df = data.frame(out_df)
 
-  colnames(out_df) = paste(rep(row.names(fit_coef), each = ncol(fit_coef)), 
+  colnames(out_df) = paste(rep(row.names(fit_coef), each = ncol(fit_coef)),
                            rep(colnames(fit_coef)))
   pvals <- colnames(out_df)[grepl("Pr\\(>", colnames(out_df))]
   df.bh <- out_df[, pvals]
@@ -50,7 +51,7 @@ pairwise_glm <- function (clr, y = "microbe", model = "~ microbe",
     }
   }
   else {
-    colnames(df.bh) <- paste(colnames(df.bh), posthoc.method, 
+    colnames(df.bh) <- paste(colnames(df.bh), posthoc.method,
                              sep = ".")
     if(verbose){print(paste0("Adjusting for FDR using ", posthoc.method, " procedure."))}
     for (j in 1:ncol(df.bh)) {
