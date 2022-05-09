@@ -1,4 +1,6 @@
+#' Perform pairwise PERMANOVAs as a post-hoc
 #' @export
+#'
 pairwise_aitchison_PERMANOVA <- function (clr.samples, groups, relevant.comparisons, adjust.p = T, adj.method = "holm" )
 {
   out_df <- data.frame()

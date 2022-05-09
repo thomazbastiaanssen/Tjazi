@@ -1,4 +1,6 @@
+#' Perform pairwise t-tests
 #' @export
+#'
 pairwise_DA_tester = function (clr, groups, comparisons,
                                verbose = TRUE, parametric = T,
                                ignore.posthoc = F,
