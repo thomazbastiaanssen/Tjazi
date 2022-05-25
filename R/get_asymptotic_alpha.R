@@ -16,11 +16,11 @@ get_asymptotic_alpha = function(species, verbose = TRUE){
                      MARGIN =  2,
                      FUN = div_applier)
                      }
-  alpha_diversity = data.frame(alpha_diversity)
+  alpha_diversity = data.frame(t(alpha_diversity))
 
-  colnames(alpha_diversity)  <- colnames(species)
+  row.names(alpha_diversity)  <- row.names(species)
 
-  alpha_diversity = cbind("Index" = c("Chao1", "Simpson Index", "Shannon Entropy"), alpha_diversity)
+  colnames(alpha_diversity) = c("Chao1", "Simpson Index", "Shannon Entropy")
 
   return(alpha_diversity)
 }
