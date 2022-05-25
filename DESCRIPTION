@@ -17,6 +17,8 @@ Imports:
     ALDEx2,
     qvalue, 
     iNEXT
+Suggests:
+    pbapply
 License: GPLv3
 Encoding: UTF-8
 LazyData: true
