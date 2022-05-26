@@ -18,7 +18,7 @@ get_asymptotic_alpha = function(species, verbose = TRUE){
                      }
   alpha_diversity = data.frame(t(alpha_diversity))
 
-  row.names(alpha_diversity)  <- row.names(species)
+  row.names(alpha_diversity)  <- colnames(species)
 
   colnames(alpha_diversity) = c("Chao1", "Simpson Index", "Shannon Entropy")
 
