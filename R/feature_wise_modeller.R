@@ -14,7 +14,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
 
   stopifnot("Format unrecognised. should be one of `fits`, 'list', `long` or `wide`. " = format %in% c("fits", "list", "long", "wide"))
 
-  order = interpret_order(order)
+  order = interpret_order(order, model = model, verbose = verbose)
 
   f = as.formula(f)
 
@@ -27,8 +27,8 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
     fits = fit_glm(x = x, f = f, metadata = metadata, ...)
   }
   if(model == "lmer"){
-    message("Error: lmer version not implemented yet!")
-    break()
+    fits    = fit_glmer(x = x, f = f, metadata = metadata, ...)
+    f.null = fit_null(x = x, f = f, metadata = metadata, ...)
   }
   if(format == "fits"){
     return(fits)
@@ -37,8 +37,14 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
   out_list = make_output(order)
 
   if(order$full){
+    if(model == "lm"){
     out_list$full   = lapply(X = fits, FUN = gather_full)
+    }
+    if(model == "lmer"){
+    out_list$full   = compare_to_null(f.null = f.null, f.full = fits)
+    }
   }
+
   if(order$anovas){
     out_list$anovas = lapply(X = fits, FUN = gather_anova)
   }
@@ -68,6 +74,42 @@ fit_glm <- function(x, f, metadata, ...)
 {apply(X = x, MARGIN = 1, FUN = function(y){
   metadata = cbind(x = c(y), metadata);
   return(lm(formula = f, data = metadata, ...))})}
+
+#' Fit a linear mixed effect model
+#'
+fit_glmer <- function(x, f, metadata, ...)
+{apply(X = x, MARGIN = 1, FUN = function(y){
+
+  metadata = cbind(x = c(y), metadata);
+  f.full = suppressMessages(lmerTest::lmer(formula = f, data = metadata, REML = F, ...))
+  return(f.full)
+  })}
+
+#' Fit a null model for a linear mixed effect model
+#'
+fit_null <- function(x, f, metadata, ...)
+
+
+  {apply(X = x, MARGIN = 1, FUN = function(y){
+
+  metadata = cbind(x = c(y), metadata);
+  f.null = lm(update.formula(f, ~ 1 ), data = metadata)
+  return(f.null)
+  })}
+
+#' Fit a null model for a linear mixed effect model
+#'s
+compare_to_null <- function(f.null, f.full){
+
+  mapply(function(f.null, f.full) {
+    out_vec <- vector("numeric", length = 2)
+    out_vec[1] <- cor(f.null$model[,1], fitted(f.full))^2
+    out_vec[2] <- anova(f.full, f.null)["f.full", "Pr(>Chisq)"]
+    names(out_vec) <- c("r.squared", "p.value")
+
+    return(out_vec)
+  }, f.null = f.null, f.full = fits, SIMPLIFY = F)
+}
 
 #' Calculate p-value for entire model fit
 #'
@@ -149,7 +191,7 @@ coef_to_wide <- function(x){
 #' @param x A string of input flags
 #' @return A list of orders
 #'
-interpret_order <- function(x){
+interpret_order <- function(x, model, verbose){
   out_list = vector("list", length = 4)
   names(out_list) = c("full", "anovas", "coefs", "tukeys")
 
@@ -157,6 +199,11 @@ interpret_order <- function(x){
   out_list["anovas"] <- grepl("a", x)
   out_list["coefs" ] <- grepl("c", x)
   out_list["tukeys"] <- grepl("t", x)
+
+  if(model == "lmer"){
+    if(verbose){print("lmer is not compatible with TukeysHSD, so skipping that order.")};
+    out_list["tukeys"] <- F
+  }
 
   return(out_list)
 
