@@ -79,7 +79,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
     row.names(out_df) <- NULL
 
     #Adjust for FDR
-    out_df = cbind(out_df, adjust_fdr(out_df, method = adjust.method))
+    out_df = cbind(out_df, adjust_fdr(out_df, method = adjust.method, verbose = verbose))
 
     if(format == "brief"){
       out_df = out_df[,!grepl("Intercept", colnames(out_df))]
@@ -283,11 +283,26 @@ make_output <- function(x){
 
 #' Adjust p.values for wide format
 #'
-adjust_fdr <- function(x, method = method){
-  out_df <- apply(X = x[,grep(pattern = "p.value|Pr\\(>", x = colnames(x))],
+adjust_fdr <- function(x, method = method, verbose = verbose){
+  y = x[,grep(pattern = "p.value|Pr\\(>", x = colnames(x))]
+
+  if(method %in% c("Storeys.Q", "Storey", "storey")){
+    if(verbose){print("Adjusting for FDR using Storey's q-value procedure.")}
+
+    out_df <- apply(X = y,
+                    MARGIN = 2,
+                    FUN = function(x){qvalue::qvalue(p = x, lambda = seq(0, max(x), 0.05))$qvalues})
+
+  } else {
+    if(verbose & method == "BH")
+      {print("Adjusting for FDR using Benjamini & Hochberg's procedure.")}
+  out_df <- apply(X = y,
                   MARGIN = 2,
                   FUN = function(x){p.adjust(x, method = method)})
+  }
+
   colnames(out_df) <- paste(colnames(out_df), method, sep = ".")
+
 
   return(out_df)
 }

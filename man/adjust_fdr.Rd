@@ -4,7 +4,7 @@
 \alias{adjust_fdr}
 \title{Adjust p.values for wide format}
 \usage{
-adjust_fdr(x, method = method)
+adjust_fdr(x, method = method, verbose = verbose)
 }
 \description{
 Adjust p.values for wide format
