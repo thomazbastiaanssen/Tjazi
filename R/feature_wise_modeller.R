@@ -67,6 +67,21 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
   return(out_list)
 }
 
+#' lm wrapper around fw_fit.
+#'
+#' @export
+#'
+fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fact", ...){
+  fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lm", order = order, ...)
+}
+
+#' lmer wrapper around fw_fit.
+#'
+#' @export
+#'
+fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fac", ...){
+  fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lmer", order = order, ...)
+}
 
 #' Fit a linear model
 #'

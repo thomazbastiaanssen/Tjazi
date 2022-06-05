@@ -4,7 +4,7 @@
 \alias{interpret_order}
 \title{Go from vector to individual booleans}
 \usage{
-interpret_order(x)
+interpret_order(x, model, verbose)
 }
 \arguments{
 \item{x}{A string of input flags}
