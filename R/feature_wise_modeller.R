@@ -88,7 +88,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
     }
 
     if(sum(unlist(order)) == 1){
-      colnames(out_df) <- gsub("full\\.|anovas\\.|coefs|\\.tukeys\\.", "", colnames(out_df))
+      colnames(out_df) <- gsub("full\\.|anovas\\.|coefs\\.|tukeys\\.", "", colnames(out_df))
     }
     return(out_df)
   }
