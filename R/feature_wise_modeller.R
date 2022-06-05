@@ -28,8 +28,13 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
   }
   if(model == "lmer"){
     fits    = fit_glmer(x = x, f = f, metadata = metadata, ...)
-    f.null = fit_null(x = x, f = f, metadata = metadata, ...)
+    f.null  = fit_null(x = x, f = f, metadata = metadata, ...)
+    if(verbose){
+      print(paste("Using the following null formula for conditional tests:", deparse(f.null[[1]]$m.null)))
+      print(paste("Using the following null formula for marginal tests:", deparse(f.null[[1]]$m.ran)))
+      }
   }
+
   if(format == "fits"){
     return(fits)
   }
@@ -61,6 +66,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
 
     out_df = do.call(data.frame, list(out_list, check.names = F))
     out_df = cbind(feature = row.names(out_df), out_df)
+    row.names(out_df) <- NULL
     return(out_df)
   }
 
@@ -104,26 +110,39 @@ fit_glmer <- function(x, f, metadata, ...)
 #'
 fit_null <- function(x, f, metadata, ...)
 
-
-  {apply(X = x, MARGIN = 1, FUN = function(y){
+{apply(X = x, MARGIN = 1, FUN = function(y){
 
   metadata = cbind(x = c(y), metadata);
-  f.null = lm(update.formula(f, ~ 1 ), data = metadata)
-  return(f.null)
-  })}
+
+  m.null <- update.formula(f, ~ 1 )
+  f.null = lm(formula = m.null, data = metadata, ...)
+
+  t = as.character(terms(f)[[3]])
+
+  reff = t[grep("\\|", x = t)]
+  reff = gsub(")", "", gsub(".*\\|", "", reff))
+
+  m.ran <- update.formula(f, formula(paste("~ 1", paste(paste0("factor(", reff, ")"), collapse = " + "), sep = " + ")))
+  fr.null = lm(formula = m.ran, data = metadata, ...)
+  return(list(f.null = f.null, fr.null = fr.null, m.null = m.null, m.ran = m.ran))
+})}
 
 #' Fit a null model for a linear mixed effect model
-#'s
+#'
 compare_to_null <- function(f.null, f.full){
 
   mapply(function(f.null, f.full) {
-    out_vec <- vector("numeric", length = 2)
-    out_vec[1] <- cor(f.null$model[,1], fitted(f.full))^2
-    out_vec[2] <- anova(f.full, f.null)["f.full", "Pr(>Chisq)"]
-    names(out_vec) <- c("r.squared", "p.value")
+    out_vec <- vector("numeric", length = 4)
+    out_vec[1] <- cor(residuals(f.null$f.null), fitted(f.full))^2
+    out_vec[2] <- anova(f.full, f.null$f.null)["f.full", "Pr(>Chisq)"]
+    out_vec[3] <- cor(residuals(f.null$fr.null), fitted(f.full))^2
+    out_vec[4] <- anova(f.full, f.null$fr.null)["f.full", "Pr(>Chisq)"]
+
+
+    names(out_vec) <- c("conditional.r.squared", "conditional.p.value", "marginal.r.squared", "marginal.p.value")
 
     return(out_vec)
-  }, f.null = f.null, f.full = fits, SIMPLIFY = F)
+  }, f.null = f.null, f.full = f.full, SIMPLIFY = F)
 }
 
 #' Calculate p-value for entire model fit
@@ -162,9 +181,11 @@ gather_coefs <- function(x, get_CI = T){
 #' Extract and format anova results
 #'
 gather_anova <- function(x){
-  coef_out <- anova(x)[-nrow(anova(x)),]
+  #return values for non-residual coeficients
+  coef_out <- anova(x)[1:sum(!is.na(anova(x)$`Pr(>F)`)),]
   return(coef_out)
 }
+
 
 #' Extract and format TukeyHSD results
 #'
@@ -215,7 +236,7 @@ interpret_order <- function(x, model, verbose){
   out_list["coefs" ] <- grepl("c", x)
   out_list["tukeys"] <- grepl("t", x)
 
-  if(model == "lmer"){
+  if(model == "lmer" & out_list$tukeys){
     if(verbose){print("lmer is not compatible with TukeysHSD, so skipping that order.")};
     out_list["tukeys"] <- F
   }

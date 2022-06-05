@@ -2,12 +2,10 @@
 % Please edit documentation in R/feature_wise_modeller.R
 \name{compare_to_null}
 \alias{compare_to_null}
-\title{Fit a null model for a linear mixed effect model
-s}
+\title{Fit a null model for a linear mixed effect model}
 \usage{
 compare_to_null(f.null, f.full)
 }
 \description{
 Fit a null model for a linear mixed effect model
-s
 }
