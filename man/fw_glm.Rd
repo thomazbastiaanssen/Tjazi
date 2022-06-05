@@ -12,6 +12,7 @@ fw_glm(
   get_CI = T,
   format = "wide",
   order = "fact",
+  adjust.method = adjust.method,
   ...
 )
 }

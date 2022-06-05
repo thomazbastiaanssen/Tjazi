@@ -12,6 +12,7 @@ fw_glmer(
   get_CI = T,
   format = "wide",
   order = "fac",
+  adjust.method = adjust.method,
   ...
 )
 }

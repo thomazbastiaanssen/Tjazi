@@ -8,7 +8,7 @@
 #'
 #'  fw_fit(x = mtcars, f = x ~ a + b, metadata = metadata, format = "fits", model = "lm", get_CI = T, order = "fact")
 #'
-fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", model = "lm", order = "fact", ...){
+fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", model = "lm", order = "fact", adjust.method = "BH", ...){
 
   stopifnot("Model type not recognised. shoudl be `lm` or `lmer`." = model %in% c("lm", "lmer"))
 
@@ -65,8 +65,17 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
     out_list <- lapply(out_list, coef_to_wide)
 
     out_df = do.call(data.frame, list(out_list, check.names = F))
+
+    #Organize colnames alphabetically
+    out_df = out_df[,order(colnames(out_df))]
+
+    #Add feature names as columns
     out_df = cbind(feature = row.names(out_df), out_df)
     row.names(out_df) <- NULL
+
+    #Adjust for FDR
+    out_df = cbind(out_df, adjust_fdr(out_df, method = adjust.method))
+
     return(out_df)
   }
 
@@ -77,7 +86,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", mod
 #'
 #' @export
 #'
-fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fact", ...){
+fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fact", adjust.method = adjust.method, ...){
   fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lm", order = order, ...)
 }
 
@@ -85,7 +94,7 @@ fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", ord
 #'
 #' @export
 #'
-fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fac", ...){
+fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fac", adjust.method = adjust.method, ...){
   fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lmer", order = order, ...)
 }
 
@@ -256,4 +265,15 @@ make_output <- function(x){
   names(out_list) = names(ord_vec)
 
   return(out_list)
+}
+
+#' Adjust p.values for wide format
+#'
+adjust_fdr <- function(x, method = method){
+  out_df <- apply(X = x[,grep(pattern = "p.value|Pr\\(>", x = colnames(x))],
+                  MARGIN = 2,
+                  FUN = function(x){p.adjust(x, method = method)})
+  colnames(out_df) <- paste(colnames(out_df), method, sep = ".")
+
+  return(out_df)
 }

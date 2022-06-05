@@ -9,10 +9,11 @@ fw_fit(
   f,
   metadata,
   verbose = T,
-  get_CI = T,
+  get_CI = F,
   format = "wide",
   model = "lm",
   order = "fact",
+  adjust.method = "BH",
   ...
 )
 }
