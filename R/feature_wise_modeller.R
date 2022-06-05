@@ -12,7 +12,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
 
   stopifnot("Model type not recognised. shoudl be `lm` or `lmer`." = model %in% c("lm", "lmer"))
 
-  stopifnot("Format unrecognised. should be one of `fits`, 'list', `long` or `wide`. " = format %in% c("fits", "list", "long", "wide"))
+  stopifnot("Format unrecognised. should be one of `fits`, 'list', `wide` or `brief`. " = format %in% c("fits", "list", "wide", "brief"))
 
   order = interpret_order(order, model = model, verbose = verbose)
 
@@ -26,13 +26,17 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
   if(model == "lm"){
     fits = fit_glm(x = x, f = f, metadata = metadata, ...)
   }
+
   if(model == "lmer"){
     fits    = fit_glmer(x = x, f = f, metadata = metadata, ...)
+    if(order$full){
     f.null  = fit_null(x = x, f = f, metadata = metadata, ...)
     if(verbose){
+      message("Be extra critical at this point, overall model fitting for mixed effects models is a contested subject. ")
       print(paste("Using the following null formula for conditional tests:", deparse(f.null[[1]]$m.null)))
       print(paste("Using the following null formula for marginal tests:", deparse(f.null[[1]]$m.ran)))
-      }
+    }
+    }
   }
 
   if(format == "fits"){
@@ -53,6 +57,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
   if(order$anovas){
     out_list$anovas = lapply(X = fits, FUN = gather_anova)
   }
+
   if(order$coefs){
     out_list$coefs  = lapply(X = fits, FUN = gather_coefs, get_CI = get_CI)
   }
@@ -60,7 +65,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
     out_list$tukeys = lapply(X = fits, FUN = gather_tukeys)
   }
 
-  if(format == "wide"){
+  if(format %in% c("wide", "brief")){
 
     out_list <- lapply(out_list, coef_to_wide)
 
@@ -76,6 +81,15 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
     #Adjust for FDR
     out_df = cbind(out_df, adjust_fdr(out_df, method = adjust.method))
 
+    if(format == "brief"){
+      out_df = out_df[,!grepl("Intercept", colnames(out_df))]
+
+      out_df = out_df[, grepl("feature|p.value|Pr\\(>|Estimate|F value|squared", colnames(out_df))]
+    }
+
+    if(sum(unlist(order)) == 1){
+      colnames(out_df) <- gsub("full\\.|anovas\\.|coefs|\\.tukeys\\.", "", colnames(out_df))
+    }
     return(out_df)
   }
 
@@ -94,7 +108,7 @@ fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", ord
 #'
 #' @export
 #'
-fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fac", adjust.method = adjust.method, ...){
+fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "ac", adjust.method = adjust.method, ...){
   fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lmer", order = order, ...)
 }
 
