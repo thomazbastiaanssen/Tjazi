@@ -11,7 +11,7 @@ fw_glmer(
   verbose = T,
   get_CI = T,
   format = "wide",
-  order = "ac",
+  order = "c",
   adjust.method = adjust.method,
   ...
 )

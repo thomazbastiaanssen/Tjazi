@@ -100,7 +100,7 @@ fw_fit <- function(x, f, metadata, verbose = T, get_CI = F, format = "wide", mod
 #'
 #' @export
 #'
-fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "fact", adjust.method = adjust.method, ...){
+fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "c", adjust.method = adjust.method, ...){
   fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lm", order = order, ...)
 }
 
@@ -108,7 +108,7 @@ fw_glm <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", ord
 #'
 #' @export
 #'
-fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "ac", adjust.method = adjust.method, ...){
+fw_glmer <- function(x, f, metadata, verbose = T, get_CI = T, format = "wide", order = "c", adjust.method = adjust.method, ...){
   fw_fit(x = x, f = f, metadata = metadata, verbose = verbose, get_CI = get_CI, format = format, model = "lmer", order = order, ...)
 }
 

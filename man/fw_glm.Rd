@@ -11,7 +11,7 @@ fw_glm(
   verbose = T,
   get_CI = T,
   format = "wide",
-  order = "fact",
+  order = "c",
   adjust.method = adjust.method,
   ...
 )
