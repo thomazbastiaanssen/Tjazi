@@ -286,6 +286,11 @@ make_output <- function(x){
 adjust_fdr <- function(x, method = method, verbose = verbose){
   y = x[,grep(pattern = "p.value|Pr\\(>", x = colnames(x))]
 
+  #In the case that only a single column of p-values was found:
+  if(is.vector(y)){
+    y = data.frame(p.value = y)
+  }
+
   if(method %in% c("Storeys.Q", "Storey", "storey")){
     if(verbose){print("Adjusting for FDR using Storey's q-value procedure.")}
 
