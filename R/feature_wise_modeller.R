@@ -289,6 +289,8 @@ adjust_fdr <- function(x, method = method, verbose = verbose){
   #In the case that only a single column of p-values was found:
   if(is.vector(y)){
     y = data.frame(p.value = y)
+    #Name it properly
+    colnames(y) = colnames(x)[grep(pattern = "p.value|Pr\\(>", x = colnames(x))]
   }
 
   if(method %in% c("Storeys.Q", "Storey", "storey")){
