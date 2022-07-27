@@ -25,6 +25,9 @@ A BibTeX entry for LaTeX users is:
       copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International}
     }
 
+The following document is adapted from the supplementary materials for
+this manuscript.
+
 # 0. Introduction
 
 Here, we will demonstrate how a microbiome analysis may look in
