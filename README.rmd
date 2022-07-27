@@ -6,7 +6,9 @@ output:
 
 If you use this software, please cite our work.
 
-Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis
+**Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis**
+
+Thomaz F. S. Bastiaanssen, Thomas P. Quinn, and Amy Loughman
 
 DOI: https://doi.org/10.48550/arxiv.2207.12475
 
