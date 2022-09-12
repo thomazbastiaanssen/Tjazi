@@ -32,7 +32,7 @@ div_applier <- function(x){
 
   out_div[1] <- iNEXT::ChaoRichness(x)$Estimator
   out_div[2] <- iNEXT::ChaoSimpson( x)$Estimator
-  out_div[3] <- iNEXT::ChaoEntropy( x)$Estimator
+  out_div[3] <- iNEXT::ChaoShannon( x)$Estimator
 
   return(out_div)
 }
