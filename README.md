@@ -636,7 +636,15 @@ the axes look totally reasonable.
 We can use a PERMANOVA test to investigate whether the variance in the
 data can be explained by the group and sex they come from. Typically,
 we’d say that we use a PERMANOVA to see whether the groups are different
-from each other.
+from each other. It is always a good idea to consider and check the
+assumptions and vulnerabilities of a statistical test. PERMANOVA, like
+it’s univariate variant ANOVA, make soft assumptions about the
+dispersion per group (e.g. variance, distance from a group centroid)
+being equal. Like ANOVA, PERMANOVA is also reasonably robust to small
+differences in variance. In a simulation study, PERMANOVA was found to
+be overly conservative in the case of the larger group (by N) has a
+greater dispersion, whereas it is overly permissive in the case the
+smaller group (by N) has a larger dispersion.
 
 ### Code chunk: Performing a PERMANOVA test
 
@@ -647,10 +655,23 @@ options(knitr.kable.NA = "")
 #Compute euclidean distance over CLR-transformed values (i.e. Aitchison distance).
 dis_ait = dist(t(genus.exp), method = "euclidean")
 
+#Use the betadisper function to assess whether the groups have a difference in variance
+anova(betadisper(dis_ait, group = metadata$Group))
+```
+
+    ## Analysis of Variance Table
+    ## 
+    ## Response: Distances
+    ##            Df  Sum Sq Mean Sq F value Pr(>F)  
+    ## Groups      1   41.07  41.066  4.0635 0.0454 *
+    ## Residuals 169 1707.90  10.106                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
 PERMANOVA_res = adonis2(dis_ait ~ Group + Sex + Smoker, 
                         data = metadata, method = "euclidean", permutations = 1000)
-
 #Plot the PERMANOVA results in a nice looking table
 kable(PERMANOVA_res, digits = 4 )
 ```
@@ -1476,12 +1497,10 @@ sessioninfo::session_info()
     ##  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
     ##  cli             3.6.0      2023-01-09 [1] CRAN (R 4.2.1)
     ##  cluster         2.1.4      2022-08-22 [4] CRAN (R 4.2.1)
-    ##  codetools       0.2-19     2023-02-01 [4] CRAN (R 4.2.2)
     ##  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     ##  crayon          1.5.2      2022-09-29 [1] CRAN (R 4.2.1)
     ##  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
     ##  dbplyr          2.3.0      2023-01-16 [1] CRAN (R 4.2.1)
-    ##  diffobj         0.3.5      2021-10-05 [1] CRAN (R 4.2.0)
     ##  digest          0.6.31     2022-12-11 [1] CRAN (R 4.2.1)
     ##  dplyr         * 1.0.10     2022-09-01 [1] CRAN (R 4.2.1)
     ##  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
@@ -1531,7 +1550,6 @@ sessioninfo::session_info()
     ##  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
     ##  readr         * 2.1.3      2022-10-01 [1] CRAN (R 4.2.1)
     ##  readxl          1.4.1      2022-08-17 [1] CRAN (R 4.2.1)
-    ##  rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.2.0)
     ##  reprex          2.0.2      2022-08-17 [1] CRAN (R 4.2.1)
     ##  reshape2        1.4.4      2020-04-09 [1] CRAN (R 4.2.0)
     ##  rlang           1.0.6      2022-09-24 [1] CRAN (R 4.2.1)

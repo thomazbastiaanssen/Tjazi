@@ -446,7 +446,7 @@ Another thing to be on the lookout for are the axis values, depicting the percen
 \newpage
 
 ## 3.1 PERMANOVA
-We can use a PERMANOVA test to investigate whether the variance in the data can be explained by the group and sex they come from. Typically, we'd say that we use a PERMANOVA to see whether the groups are different from each other.
+We can use a PERMANOVA test to investigate whether the variance in the data can be explained by the group and sex they come from. Typically, we'd say that we use a PERMANOVA to see whether the groups are different from each other. It is always a good idea to consider and check the assumptions and vulnerabilities of a statistical test. PERMANOVA, like it's univariate variant ANOVA, make soft assumptions about the dispersion per group (e.g. variance, distance from a group centroid) being equal. Like ANOVA, PERMANOVA is also reasonably robust to small differences in variance. In a simulation study, PERMANOVA was found to be overly conservative in the case of the larger group (by N) has a greater dispersion, whereas it is overly permissive in the case the smaller group (by N) has a larger dispersion. 
 
 ### Code chunk: Performing a PERMANOVA test
 
@@ -457,12 +457,15 @@ options(knitr.kable.NA = "")
 #Compute euclidean distance over CLR-transformed values (i.e. Aitchison distance).
 dis_ait = dist(t(genus.exp), method = "euclidean")
 
+#Use the betadisper function to assess whether the groups have a difference in variance
+anova(betadisper(dis_ait, group = metadata$Group))
+
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
 PERMANOVA_res = adonis2(dis_ait ~ Group + Sex + Smoker, 
                         data = metadata, method = "euclidean", permutations = 1000)
-
 #Plot the PERMANOVA results in a nice looking table
 kable(PERMANOVA_res, digits = 4 )
+
 ```
 In general, the most interesting columns from a PERMANOVA table like this one are **R2**, which shows the amount of variance that can be explained by the factor in that row, and **Pr(>F)**, which can be thought of as a p-value. We can see that the group but also the smoking status and sex factors explain enough variance that we deem it unlikely to have happened by chance (p < 0.05). Thus, we can say we found a group effect, a smoking effect and a sex effect. The effect are really small though, both of them explain about 1% of all variance observed which isn't very much. This also tracks with our figures, where we could see only mild differences for each factor. Importantly, because the PERMANOVA is a permutation-based test, all test results will likely vary slightly between runs.  You could use the `set.seed()` function to ensure consistency between runs, like we did in chapter 0. 
 
