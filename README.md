@@ -586,17 +586,6 @@ smokebeta <- ggplot(pca, aes(x       = PC1,
   plot_layout(guides = "collect", heights = c(3, 1))
 ```
 
-    ## Warning: The following aesthetics were dropped during statistical transformation: shape
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: shape
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-
 ![](README_files/figure-gfm/PCA-1.png)<!-- -->
 
 Here we see the first two components of our Principal Component

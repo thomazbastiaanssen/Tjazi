@@ -340,7 +340,7 @@ kable(res_simps_adj, digits = 3)
 Beta diversity can be thought of as the degree of difference between two samples. Typically, Beta diversity is depicted using a 2d Principal Component Analysis (PCA). We'll perform the procedure and visualize the results in a few different ways. 
 
 ### Code chunk: Performing a Principal Component Analysis and plotting Beta diversity
-```{r PCA, fig.width=10, fig.height=8}
+```{r PCA, fig.width=10, fig.height=8, warning = FALSE}
 #Apply the base R principal component analysis function on our CLR-transformed data.
 data.a.pca  <- prcomp(t(genus.exp))
 
