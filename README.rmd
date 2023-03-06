@@ -469,6 +469,7 @@ beta_disp$group.distances
 kable(anova(beta_disp), digits = 4)
 
 ```
+Here, we can see that while there is a significant difference in the spreads per group, the difference is not very large: We see an average distance to the centroid of `r round(beta_disp$group.distances[1], 2)` healthy controls  vs `r round(beta_disp$group.distances[2])` in schizophrenia. Keeping this in mind, let's perform a PERMANOVA.
 
 ### Code chunk: Performing a PERMANOVA test
 

@@ -666,6 +666,11 @@ kable(anova(beta_disp), digits = 4)
 | Groups    |   1 |   41.0655 | 41.0655 |  4.0635 |  0.0454 |
 | Residuals | 169 | 1707.8987 | 10.1059 |         |         |
 
+Here, we can see that while there is a significant difference in the
+spreads per group, the difference is not very large: We see an average
+distance to the centroid of 18.33 healthy controls vs 19 in
+schizophrenia. Keeping this in mind, let’s perform a PERMANOVA.
+
 ### Code chunk: Performing a PERMANOVA test
 
 ``` r
