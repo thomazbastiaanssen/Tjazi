@@ -625,7 +625,7 @@ Using a fairly standard cutoff of q < 0.2 we see a few hits.
 
 ### Code chunk: Plot the differentially abundant Gut Brain modules
 
-```{r Plot GBMs, message = FALSE, fig.width=16, fig.height=7}
+```{r Plot GBMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=7}
 #Plot the features that show a group effect at q < 0.2
 GBM_BH <- GBMs.exp[GBMs.glm[GBMs.glm$`Groupschizophrenia Pr(>|t|).BH` < 0.2,"feature"],] 
 
@@ -717,7 +717,7 @@ Using a fairly standard cutoff of q < 0.2 we see a fair amount of significant di
 
 ### Code chunk: Plot the differentially abundant Gut Metabolic module
 
-```{r Plot GMMs, message = FALSE, fig.width=16, fig.height=20}
+```{r Plot GMMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=20}
 #Plot the features that show a group effect at q < 0.2
 GMM_BH <- GMMs.exp[GMMs.glm[GMMs.glm$`Groupschizophrenia Pr(>|t|).BH` < 0.2,"feature"],] 
 
