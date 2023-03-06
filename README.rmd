@@ -446,7 +446,9 @@ Another thing to be on the lookout for are the axis values, depicting the percen
 \newpage
 
 ## 3.1 PERMANOVA
-We can use a PERMANOVA test to investigate whether the variance in the data can be explained by the group and sex they come from. Typically, we'd say that we use a PERMANOVA to see whether the groups are different from each other. It is always a good idea to consider and check the assumptions and vulnerabilities of a statistical test. PERMANOVA, like it's univariate variant ANOVA, make soft assumptions about the dispersion per group (e.g. variance, distance from a group centroid) being equal. Like ANOVA, PERMANOVA is also reasonably robust to small differences in variance. In a simulation study, PERMANOVA was found to be overly conservative in the case of the larger group (by N) has a greater dispersion, whereas it is overly permissive in the case the smaller group (by N) has a larger dispersion. 
+We can use a PERMANOVA test to investigate whether the variance in the data can be explained by the group and sex they come from. Typically, we'd say that we use a PERMANOVA to see whether the groups are different from each other. 
+
+It is always a good idea to consider and check the assumptions and vulnerabilities of a statistical test. PERMANOVA, like it's univariate, non-permutational cousin, ANOVA, make soft assumptions about the dispersion per group (e.g. variance, distance from a group centroid) being equal. Like ANOVA, PERMANOVA is also reasonably robust to small differences in variance between groups. In a simulation study, PERMANOVA was found to be overly conservative in the case of the larger group (by N) has a greater dispersion, whereas it is overly permissive in the case the smaller group (by N) has a larger dispersion. 
 
 ### Code chunk: Performing a PERMANOVA test
 
@@ -458,7 +460,9 @@ options(knitr.kable.NA = "")
 dis_ait = dist(t(genus.exp), method = "euclidean")
 
 #Use the betadisper function to assess whether the groups have a difference in variance
-anova(betadisper(dis_ait, group = metadata$Group))
+beta_disp = betadisper(dis_ait, group = metadata$Group)
+
+kable(anova(beta_disp), digits = 4)
 
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
 PERMANOVA_res = adonis2(dis_ait ~ Group + Sex + Smoker, 

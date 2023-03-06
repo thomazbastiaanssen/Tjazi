@@ -636,15 +636,17 @@ the axes look totally reasonable.
 We can use a PERMANOVA test to investigate whether the variance in the
 data can be explained by the group and sex they come from. Typically,
 we’d say that we use a PERMANOVA to see whether the groups are different
-from each other. It is always a good idea to consider and check the
-assumptions and vulnerabilities of a statistical test. PERMANOVA, like
-it’s univariate variant ANOVA, make soft assumptions about the
+from each other.
+
+It is always a good idea to consider and check the assumptions and
+vulnerabilities of a statistical test. PERMANOVA, like it’s univariate,
+non-permutational cousin, ANOVA, make soft assumptions about the
 dispersion per group (e.g. variance, distance from a group centroid)
 being equal. Like ANOVA, PERMANOVA is also reasonably robust to small
-differences in variance. In a simulation study, PERMANOVA was found to
-be overly conservative in the case of the larger group (by N) has a
-greater dispersion, whereas it is overly permissive in the case the
-smaller group (by N) has a larger dispersion.
+differences in variance between groups. In a simulation study, PERMANOVA
+was found to be overly conservative in the case of the larger group (by
+N) has a greater dispersion, whereas it is overly permissive in the case
+the smaller group (by N) has a larger dispersion.
 
 ### Code chunk: Performing a PERMANOVA test
 
@@ -656,17 +658,15 @@ options(knitr.kable.NA = "")
 dis_ait = dist(t(genus.exp), method = "euclidean")
 
 #Use the betadisper function to assess whether the groups have a difference in variance
-anova(betadisper(dis_ait, group = metadata$Group))
+beta_disp = betadisper(dis_ait, group = metadata$Group)
+
+kable(anova(beta_disp), digits = 4)
 ```
 
-    ## Analysis of Variance Table
-    ## 
-    ## Response: Distances
-    ##            Df  Sum Sq Mean Sq F value Pr(>F)  
-    ## Groups      1   41.07  41.066  4.0635 0.0454 *
-    ## Residuals 169 1707.90  10.106                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+|           |  Df |    Sum Sq | Mean Sq | F value | Pr(\>F) |
+|:----------|----:|----------:|--------:|--------:|--------:|
+| Groups    |   1 |   41.0655 | 41.0655 |  4.0635 |  0.0454 |
+| Residuals | 169 | 1707.8987 | 10.1059 |         |         |
 
 ``` r
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
