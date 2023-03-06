@@ -660,6 +660,15 @@ dis_ait = dist(t(genus.exp), method = "euclidean")
 #Use the betadisper function to assess whether the groups have a difference in variance
 beta_disp = betadisper(dis_ait, group = metadata$Group)
 
+kable(beta_disp$group.distances, digits = 4)
+```
+
+|               |       x |
+|:--------------|--------:|
+| healthy       | 18.3350 |
+| schizophrenia | 19.3164 |
+
+``` r
 kable(anova(beta_disp), digits = 4)
 ```
 
