@@ -139,7 +139,7 @@ We can deduce a few things about this transformation.
 
 * First, since we're taking a natural logarithm, $\frac{{x}_{n}}{G({\bf x})}$ can never be zero as the logarithm of zero is undefined. This means that we need to either replace or remove every zero in our data before we use this transformation. We expand on strategies for this in the main text. 
 * Second, the possible range of our data has changed. Regular counts can go from 0 to infinity and relative abundance data can go from 0 to 1, but CLR-transformed data can go from negative infinity to positive infinity. The logarithm of a very small number divided by a very large number will be very negative. 
-* Third, if ${x}_{n}$ is exactly the same as the geometric mean ${G({\bf x})}$, $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus $clr({x}_{n})$ will be 0 as the logarithm of 1 is equal to 0. This gives us some intuition about the size of CLR-transformed values. 
+* Third, if $x_{n}$ is exactly the same as the geometric mean $G({\bf x})$, $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus $clr({x}_{n})$ will be 0 as the logarithm of 1 is equal to 0. This gives us some intuition about the size of CLR-transformed values. 
 Going further on this, it means that an increase of 1 on a CLR-transformed scale corresponds to multiplying with *e*, Euler's number, which is approximately equal to 2.718282. Conversely, a decrease of 1 on a CLR-transformed scale corresponds to dividing by *e*. 
 
 
