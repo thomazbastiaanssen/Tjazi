@@ -660,15 +660,15 @@ dis_ait = dist(t(genus.exp), method = "euclidean")
 #Use the betadisper function to assess whether the groups have a difference in variance
 beta_disp = betadisper(dis_ait, group = metadata$Group)
 
-kable(beta_disp$group.distances, digits = 4)
+#Check average aitchison distance from the centroid 
+beta_disp$group.distances
 ```
 
-|               |       x |
-|:--------------|--------:|
-| healthy       | 18.3350 |
-| schizophrenia | 19.3164 |
+    ##       healthy schizophrenia 
+    ##      18.33498      19.31644
 
 ``` r
+#Run an ANOVA on the difference in variancve per group, plot the  results in a nice looking table
 kable(anova(beta_disp), digits = 4)
 ```
 
