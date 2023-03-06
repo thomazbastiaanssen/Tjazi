@@ -648,7 +648,7 @@ was found to be overly conservative in the case of the larger group (by
 N) has a greater dispersion, whereas it is overly permissive in the case
 the smaller group (by N) has a larger dispersion.
 
-### Code chunk: Performing a PERMANOVA test
+### Code chunk: Preparing for PERMANOVA
 
 ``` r
 #Display NAs as empty space in the table to improve appearance.
@@ -668,7 +668,7 @@ beta_disp$group.distances
     ##      18.33498      19.31644
 
 ``` r
-#Run an ANOVA on the difference in variancve per group, plot the  results in a nice looking table
+#Run an ANOVA on the difference in variance per group, plot the results in a table
 kable(anova(beta_disp), digits = 4)
 ```
 
@@ -677,10 +677,13 @@ kable(anova(beta_disp), digits = 4)
 | Groups    |   1 |   41.0655 | 41.0655 |  4.0635 |  0.0454 |
 | Residuals | 169 | 1707.8987 | 10.1059 |         |         |
 
+### Code chunk: Performing a PERMANOVA test
+
 ``` r
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
 PERMANOVA_res = adonis2(dis_ait ~ Group + Sex + Smoker, 
                         data = metadata, method = "euclidean", permutations = 1000)
+
 #Plot the PERMANOVA results in a nice looking table
 kable(PERMANOVA_res, digits = 4 )
 ```

@@ -450,9 +450,9 @@ We can use a PERMANOVA test to investigate whether the variance in the data can 
 
 It is always a good idea to consider and check the assumptions and vulnerabilities of a statistical test. PERMANOVA, like it's univariate, non-permutational cousin, ANOVA, make soft assumptions about the dispersion per group (e.g. variance, distance from a group centroid) being equal. Like ANOVA, PERMANOVA is also reasonably robust to small differences in variance between groups. In a simulation study, PERMANOVA was found to be overly conservative in the case of the larger group (by N) has a greater dispersion, whereas it is overly permissive in the case the smaller group (by N) has a larger dispersion. 
 
-### Code chunk: Performing a PERMANOVA test
+### Code chunk: Preparing for PERMANOVA
 
-```{r PERMANOVA}
+```{r PERMANOVA_prep}
 #Display NAs as empty space in the table to improve appearance.
 options(knitr.kable.NA = "")
 
@@ -465,12 +465,18 @@ beta_disp = betadisper(dis_ait, group = metadata$Group)
 #Check average aitchison distance from the centroid 
 beta_disp$group.distances
 
-#Run an ANOVA on the difference in variancve per group, plot the  results in a nice looking table
+#Run an ANOVA on the difference in variance per group, plot the results in a table
 kable(anova(beta_disp), digits = 4)
 
+```
+
+### Code chunk: Performing a PERMANOVA test
+
+```{r PERMANOVA}
 #Perform a PERMANOVA (PERmutational Multivariate ANalysis Of VAriance) test.
 PERMANOVA_res = adonis2(dis_ait ~ Group + Sex + Smoker, 
                         data = metadata, method = "euclidean", permutations = 1000)
+
 #Plot the PERMANOVA results in a nice looking table
 kable(PERMANOVA_res, digits = 4 )
 
