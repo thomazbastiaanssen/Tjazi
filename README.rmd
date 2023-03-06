@@ -111,8 +111,9 @@ n_zeroes <- rowSums(genus == 0)
 
 #Then, remove features that are absent in more than your threshold (90% in this case).
 genus    <- genus[n_zeroes <= round(ncol(genus) * 0.90),]
-
-#Perform a CLR transformation
+ 
+#Perform a CLR transformation - #We are imputing zeroes using the 'const' method 
+#Essentially, we replace zeroes with 65% of the next lowest value - see Lubbe et al 2021. 
 genus.exp <- clr_c(genus)
 ```
 

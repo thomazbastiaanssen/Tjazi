@@ -131,8 +131,9 @@ n_zeroes <- rowSums(genus == 0)
 
 #Then, remove features that are absent in more than your threshold (90% in this case).
 genus    <- genus[n_zeroes <= round(ncol(genus) * 0.90),]
-
-#Perform a CLR transformation
+ 
+#Perform a CLR transformation - #We are imputing zeroes using the 'const' method 
+#Essentially, we replace zeroes with 65% of the next lowest value - see Lubbe et al 2021. 
 genus.exp <- clr_c(genus)
 ```
 
@@ -1475,10 +1476,12 @@ sessioninfo::session_info()
     ##  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
     ##  cli             3.6.0      2023-01-09 [1] CRAN (R 4.2.1)
     ##  cluster         2.1.4      2022-08-22 [4] CRAN (R 4.2.1)
+    ##  codetools       0.2-19     2023-02-01 [4] CRAN (R 4.2.2)
     ##  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     ##  crayon          1.5.2      2022-09-29 [1] CRAN (R 4.2.1)
     ##  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
     ##  dbplyr          2.3.0      2023-01-16 [1] CRAN (R 4.2.1)
+    ##  diffobj         0.3.5      2021-10-05 [1] CRAN (R 4.2.0)
     ##  digest          0.6.31     2022-12-11 [1] CRAN (R 4.2.1)
     ##  dplyr         * 1.0.10     2022-09-01 [1] CRAN (R 4.2.1)
     ##  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
@@ -1528,6 +1531,7 @@ sessioninfo::session_info()
     ##  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
     ##  readr         * 2.1.3      2022-10-01 [1] CRAN (R 4.2.1)
     ##  readxl          1.4.1      2022-08-17 [1] CRAN (R 4.2.1)
+    ##  rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.2.0)
     ##  reprex          2.0.2      2022-08-17 [1] CRAN (R 4.2.1)
     ##  reshape2        1.4.4      2020-04-09 [1] CRAN (R 4.2.0)
     ##  rlang           1.0.6      2022-09-24 [1] CRAN (R 4.2.1)
