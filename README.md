@@ -182,14 +182,13 @@ We can deduce a few things about this transformation.
   infinity. The logarithm of a very small number divided by a very large
   number will be very negative.
 - Third, if $x_{n}$ is exactly the same as the geometric mean
-  $G({\bf x})$ , $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus
-  $clr({x}_{n})$ will be 0 as the logarithm of 1 is equal to 0. This
-  gives us some intuition about the size of CLR-transformed values.
-  Going further on this, it means that an increase of 1 on a
-  CLR-transformed scale corresponds to multiplying with *e*, Euler’s
-  number, which is approximately equal to 2.718282. Conversely, a
-  decrease of 1 on a CLR-transformed scale corresponds to dividing by
-  *e*.
+  $G({\bf x})$ , $\frac{x_{n}}{G({\bf x})}$ will be 1 and thus
+  $clr(x_{n})$ will be 0 as the logarithm of 1 is equal to 0. This gives
+  us some intuition about the size of CLR-transformed values. Going
+  further on this, it means that an increase of 1 on a CLR-transformed
+  scale corresponds to multiplying with *e*, Euler’s number, which is
+  approximately equal to 2.718282. Conversely, a decrease of 1 on a
+  CLR-transformed scale corresponds to dividing by *e*.
 
 Furthermore there are a few points to keep in mind when interpreting
 CLR-transformed values.
