@@ -148,17 +148,16 @@ form intuition on what the CLR transformation does and how to interpret
 it. Let’s start by taking a look at the mathematical notation.
 
 Let’s say we have microbiome sample which we will treat as a vector
-called $\\bf{x}$ with size *D*. We’ll refer to the taxa - or more
-generally the elements - of this vector $\\bf{x}$ as *x*<sub>1</sub> -
-*x*<sub>*D*</sub>. Then, CLR-transforming that vector $\\bf{x}$ would
-look like this:
+called $\bf{x}$ with size $D$. We’ll refer to the taxa - or more
+generally the elements - of this vector $\bf{x}$ as ${x}_1$ - ${x}_D$.
+Then, CLR-transforming that vector $\bf{x}$ would look like this:
 
 $$
-clr({\\bf{x}}) = \\left \\{ \\ln \\left (\\frac{{x}\_{1}}{G({\\bf x})} \\right), \\dots, \\ln \\left (\\frac{{x}\_{D}}{G({\\bf x})} \\right) \\right \\} 
+clr({\bf{x}}) = \left \{ \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \} 
 $$
 
-Where ${G({\\bf x})}$ is the geometric mean of $\\bf{x}$. Let’s go
-through it step by step.
+Where ${G({\bf x})}$ is the geometric mean of $\bf{x}$. Let’s go through
+it step by step.
 
 You can calculate the geometric mean of a set of *n* numbers by
 multiplying them together and then taking the *n*<sup>th</sup> root.
@@ -172,40 +171,40 @@ logarithm of the result and you’re done.
 
 We can deduce a few things about this transformation.
 
--   First, since we’re taking a natural logarithm,
-    $\\frac{{x}\_{n}}{G({\\bf x})}$ can never be zero as the logarithm
-    of zero is undefined. This means that we need to either replace or
-    remove every zero in our data before we use this transformation. We
-    expand on strategies for this in the main text.
--   Second, the possible range of our data has changed. Regular counts
-    can go from 0 to infinity and relative abundance data can go from 0
-    to 1, but CLR-transformed data can go from negative infinity to
-    positive infinity. The logarithm of a very small number divided by a
-    very large number will be very negative.
--   Third, if *x*<sub>*n*</sub> is exactly the same as the geometric
-    mean ${G({\\bf x})}$, $\\frac{{x}\_{n}}{G({\\bf x})}$ will be 1 and
-    thus *c**l**r*(*x*<sub>*n*</sub>) will be 0 as the logarithm of 1 is
-    equal to 0. This gives us some intuition about the size of
-    CLR-transformed values. Going further on this, it means that an
-    increase of 1 on a CLR-transformed scale corresponds to multiplying
-    with *e*, Euler’s number, which is approximately equal to 2.718282.
-    Conversely, a decrease of 1 on a CLR-transformed scale corresponds
-    to dividing by *e*.
+- First, since we’re taking a natural logarithm,
+  $\frac{{x}_{n}}{G({\bf x})}$ can never be zero as the logarithm of
+  zero is undefined. This means that we need to either replace or remove
+  every zero in our data before we use this transformation. We expand on
+  strategies for this in the main text.
+- Second, the possible range of our data has changed. Regular counts can
+  go from 0 to infinity and relative abundance data can go from 0 to 1,
+  but CLR-transformed data can go from negative infinity to positive
+  infinity. The logarithm of a very small number divided by a very large
+  number will be very negative.
+- Third, if ${x}_{n}$ is exactly the same as the geometric mean
+  ${G({\bf x})}$, $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus
+  $clr({x}_{n})$ will be 0 as the logarithm of 1 is equal to 0. This
+  gives us some intuition about the size of CLR-transformed values.
+  Going further on this, it means that an increase of 1 on a
+  CLR-transformed scale corresponds to multiplying with *e*, Euler’s
+  number, which is approximately equal to 2.718282. Conversely, a
+  decrease of 1 on a CLR-transformed scale corresponds to dividing by
+  *e*.
 
 Furthermore there are a few points to keep in mind when interpreting
 CLR-transformed values.
 
--   First, the CLR-transformation is especially useful in the scenario
-    where most features do not change, so that the geometric mean
-    remains reasonably stable between your samples. If the geometric
-    mean is very different between your samples, you’re dividing by very
-    different values between your samples.
--   Second, especially for microbiome sequencing experiments, we are
-    usually dealing with how many reads we found for any given organism.
-    Typically, we cannot relate this back to the absolute or even the
-    relative abundances of those organisms, as all microbes have their
-    own *microbe-to-reads* conversion rate (again see the main text).
-    Even so, the ratios between the reads are still highly informative.
+- First, the CLR-transformation is especially useful in the scenario
+  where most features do not change, so that the geometric mean remains
+  reasonably stable between your samples. If the geometric mean is very
+  different between your samples, you’re dividing by very different
+  values between your samples.
+- Second, especially for microbiome sequencing experiments, we are
+  usually dealing with how many reads we found for any given organism.
+  Typically, we cannot relate this back to the absolute or even the
+  relative abundances of those organisms, as all microbes have their own
+  *microbe-to-reads* conversion rate (again see the main text). Even so,
+  the ratios between the reads are still highly informative.
 
 The CLR-transformation is not a *perfect solution* for
 compositionality - in fact the idea of a solution to a type of data
@@ -273,6 +272,9 @@ barlong %>%
   theme_bw() + xlab("") +  ylab("Proportion") + 
   theme(text = element_text(size = 14), axis.text.x = element_blank())
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
 
 ![](README_files/figure-gfm/Stacked%20Barplots-1.png)<!-- --> Stacked
 barplots are helpful because they allow us to *eyeball* the data, giving
@@ -350,12 +352,12 @@ microbiome, we will here opt for a linear model approach to try and
 account for the effect of sex and smoking status. We will generate
 tables based on the fitting of these models. When interpreting these
 tables, we are typically mainly interested in the **Estimate** column,
-which is an estimate of the *β* (beta), and the **Pr(\>\|t\|)** column,
-which essentially depicts the p-values. In this case, the beta of a
-group can be readily interpreted as the difference between the means
-between the respective groups. Since we’ll be estimating a 95%
+which is an estimate of the $\beta$ (beta), and the **Pr(\>\|t\|)**
+column, which essentially depicts the p-values. In this case, the beta
+of a group can be readily interpreted as the difference between the
+means between the respective groups. Since we’ll be estimating a 95%
 confidence interval as well, We’ll also get two columns with the 2.5%
-and 97.5% points of the *β* estimate. The top row, containing the
+and 97.5% points of the $\beta$ estimate. The top row, containing the
 **(Intercept)** gives an estimation of the overall mean of the data and
 can usually be ignored altogether, don’t get too excited if this has a
 low p-value.
@@ -583,6 +585,17 @@ smokebeta <- ggplot(pca, aes(x       = PC1,
 (mainbeta / (sexbeta | smokebeta)) + 
   plot_layout(guides = "collect", heights = c(3, 1))
 ```
+
+    ## Warning: The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
 
 ![](README_files/figure-gfm/PCA-1.png)<!-- -->
 
@@ -925,6 +938,22 @@ GBM_BH %>%
   ylab("") + xlab("") + theme_bw() + theme(text = element_text(size = 12))
 ```
 
+    ## Warning: The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
 ![](README_files/figure-gfm/Plot%20GBMs-1.png)<!-- -->
 
 ``` r
@@ -1041,6 +1070,107 @@ GMM_BH %>%
   ylab("") + xlab("") + theme_bw() + theme(text = element_text(size = 12))
 ```
 
+    ## Warning: The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: shape
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
 ![](README_files/figure-gfm/Plot%20GMMs-1.png)<!-- -->
 
 ``` r
@@ -1138,6 +1268,7 @@ here: <https://github.com/biobakery/humann#humann_regroup_table>
 **The next snippet is not R code, but rather Bash code. **
 
 ``` bash
+
 #First, we may want to change our uniref90 file so that it uses tabs instead of commas
 sed -E 's/("([^"]*)")?,/\2\t/g' uniref90.csv  > uniref90.tsv
 
@@ -1430,3 +1561,123 @@ vola_out %>%
 ![](README_files/figure-gfm/plot_volatility-1.png)<!-- -->
 
 ------------------------------------------------------------------------
+
+Session Info
+
+``` r
+sessioninfo::session_info()
+```
+
+    ## ─ Session info ───────────────────────────────────────────────────────────────
+    ##  setting  value
+    ##  version  R version 4.2.2 Patched (2022-11-10 r83330)
+    ##  os       Ubuntu 18.04.6 LTS
+    ##  system   x86_64, linux-gnu
+    ##  ui       X11
+    ##  language en_IE:en
+    ##  collate  en_IE.UTF-8
+    ##  ctype    en_IE.UTF-8
+    ##  tz       Europe/Dublin
+    ##  date     2023-03-06
+    ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+    ## 
+    ## ─ Packages ───────────────────────────────────────────────────────────────────
+    ##  package       * version    date (UTC) lib source
+    ##  abind           1.4-5      2016-07-21 [1] CRAN (R 4.2.0)
+    ##  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+    ##  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+    ##  beeswarm        0.4.0      2021-06-01 [1] CRAN (R 4.2.0)
+    ##  broom           1.0.2      2022-12-15 [1] CRAN (R 4.2.1)
+    ##  car             3.0-13     2022-05-02 [1] CRAN (R 4.2.0)
+    ##  carData         3.0-5      2022-01-06 [1] CRAN (R 4.2.0)
+    ##  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+    ##  cli             3.6.0      2023-01-09 [1] CRAN (R 4.2.1)
+    ##  cluster         2.1.4      2022-08-22 [4] CRAN (R 4.2.1)
+    ##  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+    ##  crayon          1.5.2      2022-09-29 [1] CRAN (R 4.2.1)
+    ##  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
+    ##  dbplyr          2.3.0      2023-01-16 [1] CRAN (R 4.2.1)
+    ##  digest          0.6.31     2022-12-11 [1] CRAN (R 4.2.1)
+    ##  dplyr         * 1.0.10     2022-09-01 [1] CRAN (R 4.2.1)
+    ##  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+    ##  evaluate        0.20       2023-01-17 [1] CRAN (R 4.2.1)
+    ##  fansi           1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+    ##  farver          2.1.1      2022-07-06 [1] CRAN (R 4.2.1)
+    ##  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+    ##  forcats       * 0.5.2      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+    ##  gargle          1.2.1      2022-09-08 [1] CRAN (R 4.2.1)
+    ##  generics        0.1.3      2022-07-05 [1] CRAN (R 4.2.1)
+    ##  ggbeeswarm    * 0.7.1      2022-12-16 [1] CRAN (R 4.2.1)
+    ##  ggforce       * 0.4.1      2022-10-04 [1] CRAN (R 4.2.1)
+    ##  ggplot2       * 3.4.0      2022-11-04 [1] CRAN (R 4.2.1)
+    ##  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    ##  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
+    ##  googlesheets4   1.0.1      2022-08-13 [1] CRAN (R 4.2.1)
+    ##  gtable          0.3.1      2022-09-01 [1] CRAN (R 4.2.1)
+    ##  haven           2.5.1      2022-08-22 [1] CRAN (R 4.2.1)
+    ##  highr           0.10       2022-12-22 [1] CRAN (R 4.2.1)
+    ##  hms             1.1.2      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  htmltools       0.5.4      2022-12-07 [1] CRAN (R 4.2.1)
+    ##  httr            1.4.4      2022-08-17 [1] CRAN (R 4.2.1)
+    ##  iNEXT         * 3.0.0      2022-08-29 [1] CRAN (R 4.2.1)
+    ##  jsonlite        1.8.4      2022-12-06 [1] CRAN (R 4.2.1)
+    ##  knitr         * 1.41       2022-11-18 [1] CRAN (R 4.2.1)
+    ##  labeling        0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
+    ##  lattice       * 0.20-45    2021-09-22 [4] CRAN (R 4.2.0)
+    ##  lifecycle       1.0.3      2022-10-07 [1] CRAN (R 4.2.1)
+    ##  lubridate       1.9.0      2022-11-06 [1] CRAN (R 4.2.1)
+    ##  magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    ##  MASS            7.3-58.2   2023-01-23 [4] CRAN (R 4.2.2)
+    ##  Matrix          1.5-3      2022-11-11 [1] CRAN (R 4.2.1)
+    ##  metafolio     * 0.1.1      2022-04-11 [1] CRAN (R 4.2.0)
+    ##  mgcv            1.8-41     2022-10-21 [4] CRAN (R 4.2.1)
+    ##  modelr          0.1.10     2022-11-11 [1] CRAN (R 4.2.1)
+    ##  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+    ##  nlme            3.1-162    2023-01-31 [4] CRAN (R 4.2.2)
+    ##  patchwork     * 1.1.2      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  permute       * 0.9-7      2022-01-27 [1] CRAN (R 4.2.0)
+    ##  pillar          1.8.1      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+    ##  plyr            1.8.8      2022-11-11 [1] CRAN (R 4.2.1)
+    ##  polyclip        1.10-4     2022-10-20 [1] CRAN (R 4.2.1)
+    ##  purrr         * 1.0.1      2023-01-10 [1] CRAN (R 4.2.1)
+    ##  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+    ##  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
+    ##  readr         * 2.1.3      2022-10-01 [1] CRAN (R 4.2.1)
+    ##  readxl          1.4.1      2022-08-17 [1] CRAN (R 4.2.1)
+    ##  reprex          2.0.2      2022-08-17 [1] CRAN (R 4.2.1)
+    ##  reshape2        1.4.4      2020-04-09 [1] CRAN (R 4.2.0)
+    ##  rlang           1.0.6      2022-09-24 [1] CRAN (R 4.2.1)
+    ##  rmarkdown       2.20       2023-01-19 [1] CRAN (R 4.2.1)
+    ##  rstudioapi      0.14       2022-08-22 [1] CRAN (R 4.2.1)
+    ##  rvest           1.0.3      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  scales          1.2.1      2022-08-20 [1] CRAN (R 4.2.1)
+    ##  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    ##  stringi         1.7.12     2023-01-11 [1] CRAN (R 4.2.1)
+    ##  stringr       * 1.5.0      2022-12-02 [1] CRAN (R 4.2.1)
+    ##  tibble        * 3.1.8      2022-07-22 [1] CRAN (R 4.2.1)
+    ##  tidyr         * 1.2.1      2022-09-08 [1] CRAN (R 4.2.1)
+    ##  tidyselect      1.2.0      2022-10-10 [1] CRAN (R 4.2.1)
+    ##  tidyverse     * 1.3.2      2022-07-18 [1] CRAN (R 4.2.1)
+    ##  timechange      0.2.0      2023-01-11 [1] CRAN (R 4.2.1)
+    ##  Tjazi         * 0.1.0.0    2022-09-12 [1] Github (thomazbastiaanssen/Tjazi@fc78f67)
+    ##  tweenr          2.0.2      2022-09-06 [1] CRAN (R 4.2.1)
+    ##  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
+    ##  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+    ##  vctrs           0.5.1      2022-11-16 [1] CRAN (R 4.2.1)
+    ##  vegan         * 2.6-4      2022-10-11 [1] CRAN (R 4.2.1)
+    ##  vipor           0.4.5      2017-03-22 [1] CRAN (R 4.2.0)
+    ##  volatility    * 0.0.0.9000 2022-05-25 [1] Github (thomazbastiaanssen/Volatility@c1f50bf)
+    ##  waldo         * 0.4.0      2022-03-16 [1] CRAN (R 4.2.0)
+    ##  withr           2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+    ##  xfun            0.36       2022-12-21 [1] CRAN (R 4.2.1)
+    ##  xml2            1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
+    ##  yaml            2.3.6      2022-10-18 [1] CRAN (R 4.2.1)
+    ## 
+    ##  [1] /home/thomaz/R/x86_64-pc-linux-gnu-library/4.2
+    ##  [2] /usr/local/lib/R/site-library
+    ##  [3] /usr/lib/R/site-library
+    ##  [4] /usr/lib/R/library
+    ## 
+    ## ──────────────────────────────────────────────────────────────────────────────
