@@ -804,7 +804,7 @@ write.csv(Zhu_F_gene_families, file = "uniref90.csv")
 `Zhu_F_gene_families` contains the functional microbiome in terms of uniref90. For functional module analysis, we typically want to get to KEGG orthologues (KOs). 
 Because `curatedMetagenomicData` gives essentially biobakery output, we can use commands from the python-based `HUMAnN3` pipeline to translate our uniref90 table to KEGG orthologues. We will not go deeply into this, but see the excellent documentation here: https://github.com/biobakery/humann#humann_regroup_table 
 
-**The next snippet is not R code, but rather Bash code. **
+**The next snippet is not R code, but rather Bash code.**
 ```{r, engine = 'bash', eval = FALSE}
 
 #First, we may want to change our uniref90 file so that it uses tabs instead of commas
@@ -1029,7 +1029,7 @@ vola_out %>%
 ```
 
 ******
-Session Info
+## Session Info
 ```{r session info, eval=TRUE}
 sessioninfo::session_info()
 ```

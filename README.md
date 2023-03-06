@@ -1148,7 +1148,7 @@ essentially biobakery output, we can use commands from the python-based
 We will not go deeply into this, but see the excellent documentation
 here: <https://github.com/biobakery/humann#humann_regroup_table>
 
-**The next snippet is not R code, but rather Bash code. **
+**The next snippet is not R code, but rather Bash code.**
 
 ``` bash
 
@@ -1445,7 +1445,7 @@ vola_out %>%
 
 ------------------------------------------------------------------------
 
-Session Info
+## Session Info
 
 ``` r
 sessioninfo::session_info()
