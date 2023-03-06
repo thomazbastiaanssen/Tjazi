@@ -182,7 +182,7 @@ We can deduce a few things about this transformation.
   infinity. The logarithm of a very small number divided by a very large
   number will be very negative.
 - Third, if $x_{n}$ is exactly the same as the geometric mean
-  $G({\bf x})$, $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus
+  $G({\bf x})$ , $\frac{{x}_{n}}{G({\bf x})}$ will be 1 and thus
   $clr({x}_{n})$ will be 0 as the logarithm of 1 is equal to 0. This
   gives us some intuition about the size of CLR-transformed values.
   Going further on this, it means that an increase of 1 on a
