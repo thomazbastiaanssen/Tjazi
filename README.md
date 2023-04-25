@@ -1488,20 +1488,6 @@ Fig. 7” in that paper.
 #install and load anansi
 #devtools::install_github("thomazbastiaanssen/anansi")
 library(anansi)
-```
-
-    ## 
-    ## Attaching package: 'anansi'
-
-    ## The following objects are masked from 'package:volatility':
-    ## 
-    ##     clr_c, clr_lite, clr_logunif, clr_unif
-
-    ## The following objects are masked from 'package:Tjazi':
-    ## 
-    ##     clr_c, clr_lite, clr_logunif, clr_unif
-
-``` r
 #load ggplot2 and ggforce to plot results
 library(ggplot2)
 library(ggforce)
