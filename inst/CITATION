@@ -1,0 +1,16 @@
+citHeader("To cite Tjazi in publications use:")
+
+bibentry(bibtype="article",
+         title        = paste("Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis"),
+         author       = c(person(given = c("Thomaz", "F S"), family = "Bastiaanssen"),
+                          person(given = c("Thomas", "P"),   family = "Quinn"),
+                          person(given = c("Amy"), family = "Loughman")),
+         journal      = "arXiv",
+         year         = "2022",
+         doi          = "10.48550/ARXIV.2207.12475",
+
+         textVersion  =
+           paste("Bastiaanssen TFS, Quinn TP, Loughman A (2022)",
+                 "Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis.",
+                 "arXiv. doi: https://doi.org/10.48550/arxiv.2207.12475")
+)
