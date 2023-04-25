@@ -1,31 +1,26 @@
 If you use this software, please cite our work.
 
-**Treating Bugs as Features: A compositional guide to the statistical
-analysis of the microbiome-gut-brain axis**
+``` r
+citation("Tjazi")
+```
 
-Thomaz F. S. Bastiaanssen, Thomas P. Quinn, and Amy Loughman
-
-DOI: <https://doi.org/10.48550/arxiv.2207.12475>
-
-A BibTeX entry for LaTeX users is:
-
-    @misc{https://doi.org/10.48550/arxiv.2207.12475,
-      doi = {10.48550/ARXIV.2207.12475},
-      
-      url = {https://arxiv.org/abs/2207.12475},
-      
-      author = {Bastiaanssen, Thomaz F. S. and Quinn, Thomas P. and Loughman, Amy},
-      
-      keywords = {Genomics (q-bio.GN), Applications (stat.AP), FOS: Biological sciences, FOS: Biological sciences, FOS: Computer and information sciences, FOS: Computer and information sciences},
-      
-      title = {Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis},
-      
-      publisher = {arXiv},
-      
-      year = {2022},
-      
-      copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International}
-    }
+    ## 
+    ## To cite Tjazi in publications use:
+    ## 
+    ##   Bastiaanssen TFS, Quinn TP, Loughman A (2022) Treating Bugs as
+    ##   Features: A compositional guide to the statistical analysis of the
+    ##   microbiome-gut-brain axis. arXiv. doi:
+    ##   https://doi.org/10.48550/arxiv.2207.12475
+    ## 
+    ## A BibTeX entry for LaTeX users is
+    ## 
+    ##   @Article{,
+    ##     title = {Treating Bugs as Features: A compositional guide to the statistical analysis of the microbiome-gut-brain axis},
+    ##     author = {Thomaz F S Bastiaanssen and Thomas P Quinn and Amy Loughman},
+    ##     journal = {arXiv},
+    ##     year = {2022},
+    ##     doi = {10.48550/ARXIV.2207.12475},
+    ##   }
 
 The following document is adapted from the supplementary materials for
 this manuscript.
@@ -1788,7 +1783,7 @@ sessioninfo::session_info()
     ##  tidyselect      1.2.0      2022-10-10 [1] CRAN (R 4.2.1)
     ##  tidyverse     * 1.3.2      2022-07-18 [1] CRAN (R 4.2.1)
     ##  timechange      0.2.0      2023-01-11 [1] CRAN (R 4.2.1)
-    ##  Tjazi         * 0.1.0.0    2022-09-12 [1] Github (thomazbastiaanssen/Tjazi@fc78f67)
+    ##  Tjazi         * 0.1.0.0    2023-04-25 [1] Github (thomazbastiaanssen/Tjazi@93ec9fe)
     ##  tweenr          2.0.2      2022-09-06 [1] CRAN (R 4.2.1)
     ##  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
     ##  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
