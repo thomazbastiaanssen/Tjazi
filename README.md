@@ -1470,6 +1470,211 @@ vola_out %>%
 
 ![](README_files/figure-gfm/plot_volatility-1.png)<!-- -->
 
+# Excursion 3. Multi-omics integration
+
+The `anansi` package computes and compares the association between the
+features of two ’omics datasets that are known to interact based on a
+database such as KEGG. Studies including both microbiome and
+metabolomics data are becoming more common. Often, it would be helpful
+to integrate both datasets in order to see if they corroborate each
+others patterns. All vs all association is imprecise and likely to yield
+spurious associations. This package takes a knowledge-based approach to
+constrain association search space, only considering metabolite-function
+interactions that have been recorded in a pathway database. This package
+also provides a framework to assess differential association.
+
+We’ll load a complementary training data set using `data(FMT_data)`.
+This loads a curated snippet from the data set described in more detail
+here: <https://doi.org/10.1038/s43587-021-00093-9>  
+A very early version of `anansi` was used to generate “Extended Data
+Fig. 7” in that paper.
+
+``` r
+#install and load anansi
+#devtools::install_github("thomazbastiaanssen/anansi")
+library(anansi)
+```
+
+    ## 
+    ## Attaching package: 'anansi'
+
+    ## The following objects are masked from 'package:volatility':
+    ## 
+    ##     clr_c, clr_lite, clr_logunif, clr_unif
+
+    ## The following objects are masked from 'package:Tjazi':
+    ## 
+    ##     clr_c, clr_lite, clr_logunif, clr_unif
+
+``` r
+#load ggplot2 and ggforce to plot results
+library(ggplot2)
+library(ggforce)
+#Anansi supports parallelisation through the future.apply framework. You can call it like this:
+#plan(multisession)
+#load anansi dictionary and complementary human-readable names for KEGG compounds and orthologues
+data(dictionary)
+#load example data + metadata from FMT Aging study
+data(FMT_data)
+```
+
+## Data preparation
+
+The main `anansi` function expects data in the `anansiWeb` format;
+Basically a list with exactly three tables: The first table, `tableY`,
+should be a count table of metabolites. The second table, `tableX`,
+should be a count table of functions. Both tables should have columns as
+features and rows as samples.
+
+The third table should be a binary adjacency matrix with the column
+names of `tableY` as rows and the column names of `tableX` as columns.
+Such an adjacency matrix is provided in the `anansi` library and is
+referred to as a dictionary (because you use it to look up which
+metabolites interact with which functions).
+
+Though this example uses metabolites and functions, `anansi` is able to
+handle any type of ’omics data, as long as there is a dictionary
+available. Because of this, anansi uses the type-naive nomenclature
+`tableY` and `tableX`. The Y and X refer to the position these
+measurements will have in the linear modeling framework:
+
+$$Y \sim X \times {\text{covariates}}$$
+
+### A note on functional microbiome data
+
+Two common questions in the host-microbiome field are “Who’s there?” and
+“What are they doing?”.  
+Techniques like 16S sequencing and shotgun metagenomics sequencing are
+most commonly used to answer the first question. The second question can
+be a bit more tricky - often we’ll need functional inference software to
+address them. For 16S sequencing, algorithms like PICRUSt2 and Piphillin
+can be used to infer function. For shotgun metagenomics, HUMANn3 in the
+bioBakery suite can be used.  
+All of these algorithms can produce functional count data in terms of
+KEGG Orthologues (KOs). These tables can be directly plugged in to
+`anansi`.
+
+``` r
+#Clean and CLR-transform the KEGG orthologue table.
+
+#Only keep functions that are represented in the dictionary.
+KOs     <- FMT_KOs[row.names(FMT_KOs) %in% sort(unique(unlist(anansi_dic))),]
+
+#Cut the decimal part off.
+KOs     <- floor(KOs)
+
+#Ensure all entires are numbers.
+KOs     <- apply(KOs,c(1,2),function(x) as.numeric(as.character(x)))
+
+#Remove all features with < 10% prevalence in the dataset.
+KOs     <- KOs[apply(KOs == 0, 1, sum) <= (ncol(KOs) * 0.90), ] 
+
+#Perform a centered log-ratio transformation on the functional count table.
+KOs.exp <- clr_c(KOs)
+
+#anansi expects samples to be rows and features to be columns. 
+t1      <- t(FMT_metab)
+t2      <- t(KOs.exp)
+```
+
+## Weave a web
+
+The `weaveWebFromTables()` function can be used to parse the tables that
+we prepared above into an `anansiWeb` object. The `anansiWeb` format is
+a necessary input file for the main `anansi` workflow.
+
+``` r
+web <- weaveWebFromTables(tableY = t1, tableX = t2, dictionary = anansi_dic)
+```
+
+    ## [1] "Operating in interaction mode"
+    ## [1] "3 were matched between table 1 and the columns of the adjacency matrix"
+    ## [1] "50 were matched between table 2 and the rows of the adjacency matrix"
+
+## Run anansi
+
+The main workspider in this package is called `anansi`. Generally, you
+want to give it three arguments. First, there’s `web`, which is an
+`anansiWeb` object, such as the one we generated in the above step.
+Second, there’s `formula`, which should be a formula. For instance, to
+assess differential associations between treatments, we use the formula
+`~Treatment`, provided we have a column with that name in our `metadata`
+object, the Third argument.
+
+``` r
+anansi_out <- anansi(web      = web,          #Generated above
+                     method   = "pearson",    #Define the type of correlation used
+                     formula  = ~ Legend,     #Compare associations between treatments
+                     metadata = FMT_metadata, #With data referred to in the formula as column
+                     adjust.method = "BH",    #Apply the Benjamini-Hochberg procedure for FDR
+                     verbose  = T             #To let you know what's happening
+                     )
+```
+
+    ## [1] "Running annotation-based correlations"
+    ## [1] "Running correlations for the following groups: All, Aged yFMT, Aged oFMT, Young yFMT"
+    ## [1] "Fitting models for differential correlation testing"
+    ## [1] "Model type:lm"
+    ## [1] "Adjusting p-values using Benjamini & Hochberg's procedure."
+    ## [1] "Using theoretical distribution."
+
+## Spin to a table
+
+`anansi` gives a complex nested `anansiYarn` object as an output. Two
+functions exist that will wrangle your data to more friendly formats for
+you. You can either use `spinToLong()` or `spinToWide()`. They will give
+you long or wide format data.frames, respectively. For general
+reporting, we recommend sticking to the wide format as it’s the most
+legible. You can also use the `plot()` method on an `anansiYarn` object
+to gain some insights in the state of your p, q, R and R<sup>2</sup>
+parameters.
+
+``` r
+anansiLong <- spinToLong(anansi_output = anansi_out, translate = T, 
+                         Y_translation = anansi::cpd_translation, 
+                         X_translation = anansi::KO_translation)  
+#Now it's ready to be plugged into ggplot2, though let's clean up a bit more. 
+
+#Only consider interactions where the entire model fits well enough. 
+anansiLong <- anansiLong[anansiLong$model_full_q.values < 0.1,]
+```
+
+## Plot the results
+
+The long format can be helpful to plug the data into `ggplot2`. Here, we
+recreate part of the results from the FMT Aging study.
+
+``` r
+ggplot(data = anansiLong, 
+       aes(x      = r.values, 
+           y      = feature_X, 
+           fill   = type, 
+           alpha  = model_disjointed_Legend_p.values < 0.05)) + 
+  
+  #Make a vertical dashed red line at x = 0
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "red")+
+  
+  #Points show  raw correlation coefficients
+  geom_point(shape = 21, size = 3) + 
+  
+  #facet per compound
+  ggforce::facet_col(~feature_Y, space = "free", scales = "free_y") + 
+  
+  #fix the scales, labels, theme and other layout
+  scale_y_discrete(limits = rev, position = "right") +
+  scale_alpha_manual(values = c("TRUE" = 1, "FALSE" = 1/3), "Disjointed association\np < 0.05") +
+  scale_fill_manual(values = c("Young yFMT" = "#2166ac", 
+                               "Aged oFMT"  = "#b2182b", 
+                               "Aged yFMT"  = "#ef8a62", 
+                               "All"        = "gray"), 
+                    breaks = c("Young yFMT", "Aged oFMT", "Aged yFMT", "All"), "Treatment")+
+  theme_bw() + 
+  ylab("") + 
+  xlab("Pearson's \u03c1")
+```
+
+![](README_files/figure-gfm/plot_FMT-1.png)<!-- -->
+
 ------------------------------------------------------------------------
 
 ## Session Info
@@ -1488,21 +1693,24 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-03-06
+    ##  date     2023-04-25
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
     ##  package       * version    date (UTC) lib source
     ##  abind           1.4-5      2016-07-21 [1] CRAN (R 4.2.0)
+    ##  anansi        * 0.5.0      2023-04-25 [1] Github (thomazbastiaanssen/anansi@e188997)
     ##  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
     ##  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
     ##  beeswarm        0.4.0      2021-06-01 [1] CRAN (R 4.2.0)
+    ##  boot            1.3-28     2021-05-03 [4] CRAN (R 4.0.5)
     ##  broom           1.0.2      2022-12-15 [1] CRAN (R 4.2.1)
     ##  car             3.0-13     2022-05-02 [1] CRAN (R 4.2.0)
     ##  carData         3.0-5      2022-01-06 [1] CRAN (R 4.2.0)
     ##  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
     ##  cli             3.6.0      2023-01-09 [1] CRAN (R 4.2.1)
     ##  cluster         2.1.4      2022-08-22 [4] CRAN (R 4.2.1)
+    ##  codetools       0.2-19     2023-02-01 [4] CRAN (R 4.2.2)
     ##  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     ##  crayon          1.5.2      2022-09-29 [1] CRAN (R 4.2.1)
     ##  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
@@ -1516,11 +1724,14 @@ sessioninfo::session_info()
     ##  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
     ##  forcats       * 0.5.2      2022-08-19 [1] CRAN (R 4.2.1)
     ##  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+    ##  future          1.30.0     2022-12-16 [1] CRAN (R 4.2.1)
+    ##  future.apply    1.10.0     2022-11-05 [1] CRAN (R 4.2.1)
     ##  gargle          1.2.1      2022-09-08 [1] CRAN (R 4.2.1)
     ##  generics        0.1.3      2022-07-05 [1] CRAN (R 4.2.1)
     ##  ggbeeswarm    * 0.7.1      2022-12-16 [1] CRAN (R 4.2.1)
     ##  ggforce       * 0.4.1      2022-10-04 [1] CRAN (R 4.2.1)
     ##  ggplot2       * 3.4.0      2022-11-04 [1] CRAN (R 4.2.1)
+    ##  globals         0.16.2     2022-11-21 [1] CRAN (R 4.2.1)
     ##  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
     ##  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
     ##  googlesheets4   1.0.1      2022-08-13 [1] CRAN (R 4.2.1)
@@ -1536,21 +1747,27 @@ sessioninfo::session_info()
     ##  labeling        0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
     ##  lattice       * 0.20-45    2021-09-22 [4] CRAN (R 4.2.0)
     ##  lifecycle       1.0.3      2022-10-07 [1] CRAN (R 4.2.1)
+    ##  listenv         0.9.0      2022-12-16 [1] CRAN (R 4.2.1)
+    ##  lme4            1.1-29     2022-04-07 [1] CRAN (R 4.2.0)
     ##  lubridate       1.9.0      2022-11-06 [1] CRAN (R 4.2.1)
     ##  magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
     ##  MASS            7.3-58.2   2023-01-23 [4] CRAN (R 4.2.2)
     ##  Matrix          1.5-3      2022-11-11 [1] CRAN (R 4.2.1)
     ##  metafolio     * 0.1.1      2022-04-11 [1] CRAN (R 4.2.0)
     ##  mgcv            1.8-41     2022-10-21 [4] CRAN (R 4.2.1)
+    ##  minqa           1.2.5      2022-10-19 [1] CRAN (R 4.2.1)
     ##  modelr          0.1.10     2022-11-11 [1] CRAN (R 4.2.1)
     ##  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
     ##  nlme            3.1-162    2023-01-31 [4] CRAN (R 4.2.2)
+    ##  nloptr          2.0.3      2022-05-26 [1] CRAN (R 4.2.0)
+    ##  parallelly      1.34.0     2023-01-13 [1] CRAN (R 4.2.1)
     ##  patchwork     * 1.1.2      2022-08-19 [1] CRAN (R 4.2.1)
     ##  permute       * 0.9-7      2022-01-27 [1] CRAN (R 4.2.0)
     ##  pillar          1.8.1      2022-08-19 [1] CRAN (R 4.2.1)
     ##  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
     ##  plyr            1.8.8      2022-11-11 [1] CRAN (R 4.2.1)
     ##  polyclip        1.10-4     2022-10-20 [1] CRAN (R 4.2.1)
+    ##  propr           4.2.6      2019-12-16 [1] CRAN (R 4.2.1)
     ##  purrr         * 1.0.1      2023-01-10 [1] CRAN (R 4.2.1)
     ##  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
     ##  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
