@@ -36,3 +36,13 @@
 #' @source \url{https://doi.org/10.1038/s41467-020-15457-9}
 #'
 "metadata"
+
+
+#' A snippet of the dietary intake from the schizophrenia study
+#'
+#' @description Contains the per-sample dietary intake information for the participants from the schizophrenia study. Found in "Supplementary Data 1" on the journal website.
+#'
+#' @format A data.frame object with 171 rows, samples, and 5 columns, dietary categories, for which we have frequencies ranging from 'hardly' to 'every day'.
+#' @source \url{https://doi.org/10.1038/s41467-020-15457-9}
+#'
+"diet"
