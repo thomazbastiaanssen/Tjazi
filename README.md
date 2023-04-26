@@ -1730,7 +1730,7 @@ med.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, family = binomial("probit")
                  data = df_mediation)
 
 
-results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
+crono = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
@@ -1742,13 +1742,13 @@ med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit
                  data = df_mediation)
 
 
-results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
+gordo = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
 
 ``` r
-summary(results1)
+summary(crono)
 ```
 
     ## 
@@ -1776,7 +1776,7 @@ summary(results1)
     ## Simulations: 1000
 
 ``` r
-summary(results2)
+summary(gordo)
 ```
 
     ## 
