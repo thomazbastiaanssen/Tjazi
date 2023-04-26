@@ -1726,7 +1726,8 @@ df_mediation <- data.frame(
 ``` r
 out.fit1  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
 bac.fit1  <-  lm(Cronobacter ~ diet_PC1, data = df_mediation)
-med.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, family = binomial("probit"), data = df_mediation)
+med.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, family = binomial("probit"), 
+                 data = df_mediation)
 
 
 results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
@@ -1737,7 +1738,8 @@ results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobact
 ``` r
 out.fit2  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
 bac.fit2  <-  lm(Gordonibacter ~ diet_PC1, data = df_mediation)
-med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit"), data = df_mediation)
+med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit"), 
+                 data = df_mediation)
 
 
 results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
