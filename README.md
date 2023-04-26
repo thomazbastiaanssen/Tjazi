@@ -1776,6 +1776,12 @@ summary(crono)
     ## Simulations: 1000
 
 ``` r
+plot(crono)
+```
+
+![](README_files/figure-gfm/discuss%20mediation%20models-1.png)<!-- -->
+
+``` r
 summary(gordo)
 ```
 
@@ -1802,6 +1808,12 @@ summary(gordo)
     ## 
     ## 
     ## Simulations: 1000
+
+``` r
+plot(gordo)
+```
+
+![](README_files/figure-gfm/discuss%20mediation%20models-2.png)<!-- -->
 
 ------------------------------------------------------------------------
 

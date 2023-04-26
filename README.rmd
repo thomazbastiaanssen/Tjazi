@@ -1256,14 +1256,16 @@ med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit
 
 
 gordo = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
-
 ```
 
 
 ```{r discuss mediation models}
 
 summary(crono)
+plot(crono)
 summary(gordo)
+plot(gordo)
+
 ```
 
 ******
