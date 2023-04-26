@@ -1716,31 +1716,31 @@ hist(PC1)
 
 ``` r
 df_mediation <- data.frame(
-  Enterobacteriaceae_Cronobacter = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
-  Eggerthellaceae_Gordonibacter  = unlist(genus.exp["Eggerthellaceae_Gordonibacter",]),
-  diet_PC1  = PC1, 
-  phenotype = metadata$Group == "schizophrenia"
+  Cronobacter    = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
+  Gordonibacter  = unlist(genus.exp["Eggerthellaceae_Gordonibacter",]),
+  diet_PC1       = PC1, 
+  phenotype      = metadata$Group == "schizophrenia"
   )
 ```
 
 ``` r
-out.fit1  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
-bac.fit1  <-  lm(Enterobacteriaceae_Cronobacter ~ diet_PC1, data = df_mediation)
-med.fit1  <- glm(phenotype ~ diet_PC1 + Enterobacteriaceae_Cronobacter, data = df_mediation, family = binomial("probit"))
+out.fit1  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
+bac.fit1  <-  lm(Cronobacter ~ diet_PC1, data = df_mediation)
+med.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, family = binomial("probit"), data = df_mediation)
 
 
-results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Enterobacteriaceae_Cronobacter', boot = TRUE )
+results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
 
 ``` r
-out.fit2  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
-bac.fit2  <-  lm(Eggerthellaceae_Gordonibacter ~ diet_PC1, data = df_mediation)
-med.fit2  <- glm(phenotype ~ diet_PC1 + Eggerthellaceae_Gordonibacter, data = df_mediation, family = binomial("probit"))
+out.fit2  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
+bac.fit2  <-  lm(Gordonibacter ~ diet_PC1, data = df_mediation)
+med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit"), data = df_mediation)
 
 
-results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Eggerthellaceae_Gordonibacter', boot = TRUE )
+results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
