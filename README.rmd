@@ -1041,11 +1041,11 @@ A very early version of `anansi` was used to generate "Extended Data Fig. 7" in 
 #install and load anansi
 #devtools::install_github("thomazbastiaanssen/anansi")
 library(anansi)
+
 #load ggplot2 and ggforce to plot results
 library(ggplot2)
 library(ggforce)
-#Anansi supports parallelisation through the future.apply framework. You can call it like this:
-#plan(multisession)
+
 #load anansi dictionary and complementary human-readable names for KEGG compounds and orthologues
 data(dictionary)
 #load example data + metadata from FMT Aging study
@@ -1167,6 +1167,101 @@ ggplot(data = anansiLong,
   theme_bw() + 
   ylab("") + 
   xlab("Pearson's \u03c1")
+```
+
+
+# Excursion 4. Mediation analysis
+
+```{r setup mediation, eval=TRUE, message = FALSE}
+#Load the mediation library
+library(mediation)
+
+#Load relevant files for demo
+data(guidebook_data)
+
+counts   <- counts ; metadata <- metadata ; diet <- diet
+
+#Repeat the cleaning and transformation steps from part 1
+metadata$master_ID <- gsub(metadata$master_ID, pattern = "-", replacement = ".")
+
+counts  <- counts[,metadata$master_ID]
+
+#Fork off your count data so that you always have an untouched version handy.
+genus   <- counts
+
+#make sure our count data is all numbers
+genus   <- apply(genus,c(1,2),function(x) as.numeric(as.character(x)))
+
+#Remove features with prevalence < 10% in two steps:
+#First, determine how often every feature is absent in a sample
+n_zeroes <- rowSums(genus == 0)
+
+#Then, remove features that are absent in more than your threshold (90% in this case).
+genus    <- genus[n_zeroes <= round(ncol(genus) * 0.90),]
+
+#Perform a CLR transformation
+genus.exp <- clr_c(genus)
+
+```
+
+```{r diet pca}
+diet.pca = diet %>% 
+  
+  #Replace text with numbers
+  mutate(across(.cols = everything(), ~str_replace( ., "hardly",                      "1" )),
+         across(.cols = everything(), ~str_replace( ., "often",                       "2" )),
+         across(.cols = everything(), ~str_replace( ., "twice or three times a week", "3" )),
+         across(.cols = everything(), ~str_replace( ., "every day",                   "4" )), 
+         across(.cols = everything(), as.numeric)) %>% 
+  
+  #Center and rescale data
+  scale()  %>% 
+  
+  #Perform a principal component analysis
+  prcomp() 
+
+#Take the loadings of the first principal component
+PC1 = diet.pca$x[,1]
+
+#Let's check it out using a histogram
+hist(PC1)
+```
+
+```{r construct mediation df}
+
+
+df_mediation <- data.frame(
+  Enterobacteriaceae_Cronobacter = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
+  Eggerthellaceae_Gordonibacter  = unlist(genus.exp["Eggerthellaceae_Gordonibacter",]),
+  diet_PC1  = PC1, 
+  phenotype = metadata$Group == "schizophrenia"
+  )
+
+```
+```{r fit mediation models}
+
+out.fit1  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
+bac.fit1  <-  lm(Enterobacteriaceae_Cronobacter ~ diet_PC1, data = df_mediation)
+med.fit1  <- glm(phenotype ~ diet_PC1 + Enterobacteriaceae_Cronobacter, data = df_mediation, family = binomial("probit"))
+
+
+results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Enterobacteriaceae_Cronobacter', boot = TRUE )
+
+
+out.fit2  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
+bac.fit2  <-  lm(Eggerthellaceae_Gordonibacter ~ diet_PC1, data = df_mediation)
+med.fit2  <- glm(phenotype ~ diet_PC1 + Eggerthellaceae_Gordonibacter, data = df_mediation, family = binomial("probit"))
+
+
+results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Eggerthellaceae_Gordonibacter', boot = TRUE )
+
+```
+
+
+```{r discuss mediation models}
+
+summary(results1)
+summary(results2)
 ```
 
 ******

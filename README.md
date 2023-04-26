@@ -1488,11 +1488,11 @@ Fig. 7” in that paper.
 #install and load anansi
 #devtools::install_github("thomazbastiaanssen/anansi")
 library(anansi)
+
 #load ggplot2 and ggforce to plot results
 library(ggplot2)
 library(ggforce)
-#Anansi supports parallelisation through the future.apply framework. You can call it like this:
-#plan(multisession)
+
 #load anansi dictionary and complementary human-readable names for KEGG compounds and orthologues
 data(dictionary)
 #load example data + metadata from FMT Aging study
@@ -1656,6 +1656,151 @@ ggplot(data = anansiLong,
 
 ![](README_files/figure-gfm/plot_FMT-1.png)<!-- -->
 
+# Excursion 4. Mediation analysis
+
+``` r
+#Load the mediation library
+library(mediation)
+
+#Load relevant files for demo
+data(guidebook_data)
+
+counts   <- counts ; metadata <- metadata ; diet <- diet
+
+#Repeat the cleaning and transformation steps from part 1
+metadata$master_ID <- gsub(metadata$master_ID, pattern = "-", replacement = ".")
+
+counts  <- counts[,metadata$master_ID]
+
+#Fork off your count data so that you always have an untouched version handy.
+genus   <- counts
+
+#make sure our count data is all numbers
+genus   <- apply(genus,c(1,2),function(x) as.numeric(as.character(x)))
+
+#Remove features with prevalence < 10% in two steps:
+#First, determine how often every feature is absent in a sample
+n_zeroes <- rowSums(genus == 0)
+
+#Then, remove features that are absent in more than your threshold (90% in this case).
+genus    <- genus[n_zeroes <= round(ncol(genus) * 0.90),]
+
+#Perform a CLR transformation
+genus.exp <- clr_c(genus)
+```
+
+``` r
+diet.pca = diet %>% 
+  
+  #Replace text with numbers
+  mutate(across(.cols = everything(), ~str_replace( ., "hardly",                      "1" )),
+         across(.cols = everything(), ~str_replace( ., "often",                       "2" )),
+         across(.cols = everything(), ~str_replace( ., "twice or three times a week", "3" )),
+         across(.cols = everything(), ~str_replace( ., "every day",                   "4" )), 
+         across(.cols = everything(), as.numeric)) %>% 
+  
+  #Center and rescale data
+  scale()  %>% 
+  
+  #Perform a principal component analysis
+  prcomp() 
+
+#Take the loadings of the first principal component
+PC1 = diet.pca$x[,1]
+
+#Let's check it out using a histogram
+hist(PC1)
+```
+
+![](README_files/figure-gfm/diet%20pca-1.png)<!-- -->
+
+``` r
+df_mediation <- data.frame(
+  Enterobacteriaceae_Cronobacter = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
+  Eggerthellaceae_Gordonibacter  = unlist(genus.exp["Eggerthellaceae_Gordonibacter",]),
+  diet_PC1  = PC1, 
+  phenotype = metadata$Group == "schizophrenia"
+  )
+```
+
+``` r
+out.fit1  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
+bac.fit1  <-  lm(Enterobacteriaceae_Cronobacter ~ diet_PC1, data = df_mediation)
+med.fit1  <- glm(phenotype ~ diet_PC1 + Enterobacteriaceae_Cronobacter, data = df_mediation, family = binomial("probit"))
+
+
+results1 = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Enterobacteriaceae_Cronobacter', boot = TRUE )
+```
+
+    ## Running nonparametric bootstrap
+
+``` r
+out.fit2  <- glm(phenotype ~ diet_PC1, data = df_mediation, family = binomial("probit"))
+bac.fit2  <-  lm(Eggerthellaceae_Gordonibacter ~ diet_PC1, data = df_mediation)
+med.fit2  <- glm(phenotype ~ diet_PC1 + Eggerthellaceae_Gordonibacter, data = df_mediation, family = binomial("probit"))
+
+
+results2 = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Eggerthellaceae_Gordonibacter', boot = TRUE )
+```
+
+    ## Running nonparametric bootstrap
+
+``` r
+summary(results1)
+```
+
+    ## 
+    ## Causal Mediation Analysis 
+    ## 
+    ## Nonparametric Bootstrap Confidence Intervals with the Percentile Method
+    ## 
+    ##                           Estimate 95% CI Lower 95% CI Upper p-value  
+    ## ACME (control)            0.012299     0.000829         0.03   0.030 *
+    ## ACME (treated)            0.012063     0.000827         0.03   0.030 *
+    ## ADE (control)             0.047536    -0.007602         0.10   0.092 .
+    ## ADE (treated)             0.047300    -0.007617         0.10   0.092 .
+    ## Total Effect              0.059599     0.006092         0.12   0.030 *
+    ## Prop. Mediated (control)  0.206366    -0.011565         1.13   0.060 .
+    ## Prop. Mediated (treated)  0.202396    -0.011243         1.13   0.060 .
+    ## ACME (average)            0.012181     0.000828         0.03   0.030 *
+    ## ADE (average)             0.047418    -0.007609         0.10   0.092 .
+    ## Prop. Mediated (average)  0.204381    -0.011404         1.13   0.060 .
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Sample Size Used: 171 
+    ## 
+    ## 
+    ## Simulations: 1000
+
+``` r
+summary(results2)
+```
+
+    ## 
+    ## Causal Mediation Analysis 
+    ## 
+    ## Nonparametric Bootstrap Confidence Intervals with the Percentile Method
+    ## 
+    ##                          Estimate 95% CI Lower 95% CI Upper p-value  
+    ## ACME (control)           -0.00260     -0.01767         0.01   0.720  
+    ## ACME (treated)           -0.00254     -0.01723         0.01   0.720  
+    ## ADE (control)             0.06250      0.00726         0.12   0.038 *
+    ## ADE (treated)             0.06256      0.00727         0.12   0.038 *
+    ## Total Effect              0.05996      0.00156         0.12   0.050 *
+    ## Prop. Mediated (control) -0.04335     -0.67302         0.36   0.758  
+    ## Prop. Mediated (treated) -0.04244     -0.66166         0.36   0.758  
+    ## ACME (average)           -0.00257     -0.01762         0.01   0.720  
+    ## ADE (average)             0.06253      0.00727         0.12   0.038 *
+    ## Prop. Mediated (average) -0.04290     -0.66740         0.36   0.758  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Sample Size Used: 171 
+    ## 
+    ## 
+    ## Simulations: 1000
+
 ------------------------------------------------------------------------
 
 ## Session Info
@@ -1674,7 +1819,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-04-25
+    ##  date     2023-04-26
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
@@ -1683,19 +1828,23 @@ sessioninfo::session_info()
     ##  anansi        * 0.5.0      2023-04-25 [1] Github (thomazbastiaanssen/anansi@e188997)
     ##  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
     ##  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+    ##  base64enc       0.1-3      2015-07-28 [1] CRAN (R 4.2.0)
     ##  beeswarm        0.4.0      2021-06-01 [1] CRAN (R 4.2.0)
     ##  boot            1.3-28     2021-05-03 [4] CRAN (R 4.0.5)
     ##  broom           1.0.2      2022-12-15 [1] CRAN (R 4.2.1)
     ##  car             3.0-13     2022-05-02 [1] CRAN (R 4.2.0)
     ##  carData         3.0-5      2022-01-06 [1] CRAN (R 4.2.0)
     ##  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+    ##  checkmate       2.1.0      2022-04-21 [1] CRAN (R 4.2.0)
     ##  cli             3.6.0      2023-01-09 [1] CRAN (R 4.2.1)
     ##  cluster         2.1.4      2022-08-22 [4] CRAN (R 4.2.1)
     ##  codetools       0.2-19     2023-02-01 [4] CRAN (R 4.2.2)
     ##  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     ##  crayon          1.5.2      2022-09-29 [1] CRAN (R 4.2.1)
+    ##  data.table      1.14.6     2022-11-16 [1] CRAN (R 4.2.1)
     ##  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
     ##  dbplyr          2.3.0      2023-01-16 [1] CRAN (R 4.2.1)
+    ##  deldir          1.0-6      2021-10-23 [1] CRAN (R 4.2.1)
     ##  digest          0.6.31     2022-12-11 [1] CRAN (R 4.2.1)
     ##  dplyr         * 1.0.10     2022-09-01 [1] CRAN (R 4.2.1)
     ##  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
@@ -1704,6 +1853,8 @@ sessioninfo::session_info()
     ##  farver          2.1.1      2022-07-06 [1] CRAN (R 4.2.1)
     ##  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
     ##  forcats       * 0.5.2      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  foreign         0.8-82     2022-01-13 [4] CRAN (R 4.1.2)
+    ##  Formula         1.2-4      2020-10-16 [1] CRAN (R 4.2.0)
     ##  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
     ##  future          1.30.0     2022-12-16 [1] CRAN (R 4.2.1)
     ##  future.apply    1.10.0     2022-11-05 [1] CRAN (R 4.2.1)
@@ -1716,41 +1867,54 @@ sessioninfo::session_info()
     ##  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
     ##  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
     ##  googlesheets4   1.0.1      2022-08-13 [1] CRAN (R 4.2.1)
+    ##  gridExtra       2.3        2017-09-09 [1] CRAN (R 4.2.0)
     ##  gtable          0.3.1      2022-09-01 [1] CRAN (R 4.2.1)
     ##  haven           2.5.1      2022-08-22 [1] CRAN (R 4.2.1)
     ##  highr           0.10       2022-12-22 [1] CRAN (R 4.2.1)
+    ##  Hmisc           4.7-2      2022-11-18 [1] CRAN (R 4.2.1)
     ##  hms             1.1.2      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  htmlTable       2.4.1      2022-07-07 [1] CRAN (R 4.2.1)
     ##  htmltools       0.5.4      2022-12-07 [1] CRAN (R 4.2.1)
+    ##  htmlwidgets     1.6.1      2023-01-07 [1] CRAN (R 4.2.1)
     ##  httr            1.4.4      2022-08-17 [1] CRAN (R 4.2.1)
     ##  iNEXT         * 3.0.0      2022-08-29 [1] CRAN (R 4.2.1)
+    ##  interp          1.1-3      2022-07-13 [1] CRAN (R 4.2.1)
+    ##  jpeg            0.1-10     2022-11-29 [1] CRAN (R 4.2.1)
     ##  jsonlite        1.8.4      2022-12-06 [1] CRAN (R 4.2.1)
     ##  knitr         * 1.41       2022-11-18 [1] CRAN (R 4.2.1)
     ##  labeling        0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
     ##  lattice       * 0.20-45    2021-09-22 [4] CRAN (R 4.2.0)
+    ##  latticeExtra    0.6-30     2022-07-04 [1] CRAN (R 4.2.1)
     ##  lifecycle       1.0.3      2022-10-07 [1] CRAN (R 4.2.1)
     ##  listenv         0.9.0      2022-12-16 [1] CRAN (R 4.2.1)
     ##  lme4            1.1-29     2022-04-07 [1] CRAN (R 4.2.0)
+    ##  lpSolve         5.6.18     2023-02-01 [1] CRAN (R 4.2.2)
     ##  lubridate       1.9.0      2022-11-06 [1] CRAN (R 4.2.1)
     ##  magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
-    ##  MASS            7.3-58.2   2023-01-23 [4] CRAN (R 4.2.2)
-    ##  Matrix          1.5-3      2022-11-11 [1] CRAN (R 4.2.1)
+    ##  MASS          * 7.3-58.2   2023-01-23 [4] CRAN (R 4.2.2)
+    ##  Matrix        * 1.5-3      2022-11-11 [1] CRAN (R 4.2.1)
+    ##  mediation     * 4.5.0      2019-10-08 [1] CRAN (R 4.2.2)
     ##  metafolio     * 0.1.1      2022-04-11 [1] CRAN (R 4.2.0)
     ##  mgcv            1.8-41     2022-10-21 [4] CRAN (R 4.2.1)
     ##  minqa           1.2.5      2022-10-19 [1] CRAN (R 4.2.1)
     ##  modelr          0.1.10     2022-11-11 [1] CRAN (R 4.2.1)
     ##  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+    ##  mvtnorm       * 1.1-3      2021-10-08 [1] CRAN (R 4.2.1)
     ##  nlme            3.1-162    2023-01-31 [4] CRAN (R 4.2.2)
     ##  nloptr          2.0.3      2022-05-26 [1] CRAN (R 4.2.0)
+    ##  nnet            7.3-18     2022-09-28 [4] CRAN (R 4.2.1)
     ##  parallelly      1.34.0     2023-01-13 [1] CRAN (R 4.2.1)
     ##  patchwork     * 1.1.2      2022-08-19 [1] CRAN (R 4.2.1)
     ##  permute       * 0.9-7      2022-01-27 [1] CRAN (R 4.2.0)
     ##  pillar          1.8.1      2022-08-19 [1] CRAN (R 4.2.1)
     ##  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
     ##  plyr            1.8.8      2022-11-11 [1] CRAN (R 4.2.1)
+    ##  png             0.1-8      2022-11-29 [1] CRAN (R 4.2.1)
     ##  polyclip        1.10-4     2022-10-20 [1] CRAN (R 4.2.1)
     ##  propr           4.2.6      2019-12-16 [1] CRAN (R 4.2.1)
     ##  purrr         * 1.0.1      2023-01-10 [1] CRAN (R 4.2.1)
     ##  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+    ##  RColorBrewer    1.1-3      2022-04-03 [1] CRAN (R 4.2.0)
     ##  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
     ##  readr         * 2.1.3      2022-10-01 [1] CRAN (R 4.2.1)
     ##  readxl          1.4.1      2022-08-17 [1] CRAN (R 4.2.1)
@@ -1758,18 +1922,21 @@ sessioninfo::session_info()
     ##  reshape2        1.4.4      2020-04-09 [1] CRAN (R 4.2.0)
     ##  rlang           1.0.6      2022-09-24 [1] CRAN (R 4.2.1)
     ##  rmarkdown       2.20       2023-01-19 [1] CRAN (R 4.2.1)
+    ##  rpart           4.1.19     2022-10-21 [4] CRAN (R 4.2.1)
     ##  rstudioapi      0.14       2022-08-22 [1] CRAN (R 4.2.1)
     ##  rvest           1.0.3      2022-08-19 [1] CRAN (R 4.2.1)
+    ##  sandwich      * 3.0-2      2022-06-15 [1] CRAN (R 4.2.2)
     ##  scales          1.2.1      2022-08-20 [1] CRAN (R 4.2.1)
     ##  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
     ##  stringi         1.7.12     2023-01-11 [1] CRAN (R 4.2.1)
     ##  stringr       * 1.5.0      2022-12-02 [1] CRAN (R 4.2.1)
+    ##  survival        3.4-0      2022-08-09 [4] CRAN (R 4.2.1)
     ##  tibble        * 3.1.8      2022-07-22 [1] CRAN (R 4.2.1)
     ##  tidyr         * 1.2.1      2022-09-08 [1] CRAN (R 4.2.1)
     ##  tidyselect      1.2.0      2022-10-10 [1] CRAN (R 4.2.1)
     ##  tidyverse     * 1.3.2      2022-07-18 [1] CRAN (R 4.2.1)
     ##  timechange      0.2.0      2023-01-11 [1] CRAN (R 4.2.1)
-    ##  Tjazi         * 0.1.0.0    2023-04-25 [1] Github (thomazbastiaanssen/Tjazi@93ec9fe)
+    ##  Tjazi         * 0.1.0.0    2023-04-26 [1] Github (thomazbastiaanssen/Tjazi@91f5c82)
     ##  tweenr          2.0.2      2022-09-06 [1] CRAN (R 4.2.1)
     ##  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
     ##  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
@@ -1782,6 +1949,7 @@ sessioninfo::session_info()
     ##  xfun            0.36       2022-12-21 [1] CRAN (R 4.2.1)
     ##  xml2            1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
     ##  yaml            2.3.6      2022-10-18 [1] CRAN (R 4.2.1)
+    ##  zoo             1.8-12     2023-04-13 [1] CRAN (R 4.2.2)
     ## 
     ##  [1] /home/thomaz/R/x86_64-pc-linux-gnu-library/4.2
     ##  [2] /usr/local/lib/R/site-library
