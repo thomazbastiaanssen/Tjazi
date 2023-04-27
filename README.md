@@ -1465,18 +1465,22 @@ vola_out %>%
 
 ![](README_files/figure-gfm/plot_volatility-1.png)<!-- -->
 
+------------------------------------------------------------------------
+
 # Excursion 3. Multi-omics integration
 
+Here, we will demonstrate how to integrate and subsequently analyse two
+’omics data sets. For this, we will use the `anansi` framework and
+package. Studies including both microbiome and metabolomics data are
+becoming more common. Often, it would be helpful to integrate both data
+sets in order to see if they corroborate each others patterns. All vs
+all association is imprecise and likely to yield spurious associations.
+
 The `anansi` package computes and compares the association between the
-features of two ’omics datasets that are known to interact based on a
-database such as KEGG. Studies including both microbiome and
-metabolomics data are becoming more common. Often, it would be helpful
-to integrate both datasets in order to see if they corroborate each
-others patterns. All vs all association is imprecise and likely to yield
-spurious associations. This package takes a knowledge-based approach to
+features of two ’omics data sets that are known to interact based on a
+database such as KEGG. `anansi` takes a knowledge-based approach to
 constrain association search space, only considering metabolite-function
-interactions that have been recorded in a pathway database. This package
-also provides a framework to assess differential association.
+interactions that have been recorded in a pathway database.
 
 We’ll load a complementary training data set using `data(FMT_data)`.
 This loads a curated snippet from the data set described in more detail
@@ -1510,12 +1514,13 @@ features and rows as samples.
 The third table should be a binary adjacency matrix with the column
 names of `tableY` as rows and the column names of `tableX` as columns.
 Such an adjacency matrix is provided in the `anansi` library and is
-referred to as a dictionary (because you use it to look up which
-metabolites interact with which functions).
+referred to as a `dictionary` (because you use it to look up which
+metabolites interact with which functions). We can load it using
+`data(dictionary)`.
 
 Though this example uses metabolites and functions, `anansi` is able to
 handle any type of ’omics data, as long as there is a dictionary
-available. Because of this, anansi uses the type-naive nomenclature
+available. Because of this, `anansi` uses the type-naive nomenclature
 `tableY` and `tableX`. The Y and X refer to the position these
 measurements will have in the linear modeling framework:
 
@@ -1528,9 +1533,9 @@ Two common questions in the host-microbiome field are “Who’s there?” and
 Techniques like 16S sequencing and shotgun metagenomics sequencing are
 most commonly used to answer the first question. The second question can
 be a bit more tricky - often we’ll need functional inference software to
-address them. For 16S sequencing, algorithms like PICRUSt2 and Piphillin
-can be used to infer function. For shotgun metagenomics, HUMANn3 in the
-bioBakery suite can be used.  
+address them. For 16S sequencing, algorithms like `PICRUSt2` and
+`Piphillin` can be used to infer function. For shotgun metagenomics,
+`HUMANn3` in the bioBakery suite or `woltka` can be used.  
 All of these algorithms can produce functional count data in terms of
 KEGG Orthologues (KOs). These tables can be directly plugged in to
 `anansi`.
@@ -1656,7 +1661,42 @@ ggplot(data = anansiLong,
 
 ![](README_files/figure-gfm/plot_FMT-1.png)<!-- -->
 
+Here, we can see the per-group correlations between metabolite-function
+pairs in terms of Pearson’s correlation coefficient on the x-axis.
+Opaque points indicate significantly disjointed associations, meaning
+that these associations have a significantly different slope between
+groups.
+
+------------------------------------------------------------------------
+
 # Excursion 4. Mediation analysis
+
+Mediation analysis is a statistical tool that can help us answer causal
+questions. Mediation analysis can be used to address core questions in
+the microbiome-gut-brain axis field. One common and important example is
+as follows: \* We know diet affects mental health. \* We also know diet
+affects the microbiome. \* We have observed associations between
+microbial taxa and mental health.
+
+But how do we make sure that the association between the microbiome and
+mental health isn’t due to the fact that they share a common ‘driver’,
+namely diet, rendering our observed associations between the microbiome
+and the brain merely spurious? Conversely, mediation analysis could help
+us find to which degree the underlying mechanism of the effect of diet
+on mental health is due to the effect of diet on the microbiome.
+
+Here, we will demonstrate how one could go about performing mediation
+analysis to ask and answer this question. We will use the 2020
+schizophrenia data set to demonstrate this point. It should be noted
+here that in reality, one would need strong biological mechanistic
+reasons to perform a mediation analysis in order to make the ‘causal’
+part in causal mediation analysis carry any meaning. Here we are just
+performing the analysis for demonstrative purposes.
+
+## Gathering and preparing our data
+
+First, Let’s load the schizophrenia data set into our environment. We’ll
+also quickly clean and CLR-transform our genus-level count table.
 
 ``` r
 #Load the mediation library
@@ -1689,6 +1729,17 @@ genus    <- genus[n_zeroes <= round(ncol(genus) * 0.90),]
 genus.exp <- clr_c(genus)
 ```
 
+## Preparing the dietary data
+
+Furthermore, we will need to prepare the dietary data. For this study,
+we have access to a table of five columns denoting how frequently our
+participants eat food groups. It should be noted that we are only using
+this data for demonstration purposes. In reality, the resolution of the
+dietary information provided with this study would not be sufficient to
+make any type of causal claim for several reasons. That said, let’s
+convert the dietary frequency categories into numbers and then perform a
+principal component analysis.
+
 ``` r
 diet.pca = diet %>% 
   
@@ -1714,6 +1765,13 @@ hist(PC1)
 
 ![](README_files/figure-gfm/diet%20pca-1.png)<!-- -->
 
+## Prepare datas for mediation analysis
+
+We’ll take two of the bacteria, *Cronobacter* and *Gordonibacter*, that
+were found to be statistically associated with schizophrenia in our
+initial analysis. We’ll also take the first component of the dietary
+intake PCA we generated above.
+
 ``` r
 df_mediation <- data.frame(
   Cronobacter    = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
@@ -1723,29 +1781,155 @@ df_mediation <- data.frame(
   )
 ```
 
+## Fit models
+
+For mediation analysis, we need to consider a few models.
+
+- First, we estimate the effect of diet on our microbe of interest:
+  $microbe \sim diet$. Does diet explain phenotype? If yes, we can
+  proceed.
+
+- Second, we estimate the effect of the microbe on our phenotype of
+  interest: $phenotype \sim microbe$. Does the microbe also explain
+  phenotype? If also yes, we have a potential mediation on our hands.
+
+- Third, we estimate the *joint* effect of diet and the microbe on our
+  phenotype of interest: $phenotype \sim diet + microbe$. Does diet now
+  explain phenotype worse in the presence of the microbe? If so, we have
+  a potential mediation on our hands. In the case that diet no longer
+  explains phenotype at all, we may be dealing with a full mediation. in
+  the case of a reduction of explanatory potential, we rather speak of a
+  potential partial mediation.
+
+To check for a mediation effect, we use the `mediation` package.
+
+In our case, the phenotype (schizophrenia diagnosis) is a binary
+outcome. Because of that, we’ll use a logistic regression model rather
+than a ‘regular’ linear model there.
+
+Let’s give it a shot with our two bacteria.
+
 ``` r
-out.fit1  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
-bac.fit1  <-  lm(Cronobacter ~ diet_PC1, data = df_mediation)
-med.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, family = binomial("probit"), 
-                 data = df_mediation)
+#Cronobacter
+#Does diet explain phenotype?
+diet.fit1  <- glm(phenotype ~ diet_PC1, 
+                  family = binomial("logit"), data = df_mediation)
 
+#Does diet explain Cronobacter?
+diba.fit1  <-  lm(Cronobacter ~ diet_PC1, data = df_mediation)
 
-crono = mediate(bac.fit1, med.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
+#Does Gordonibacter explain phenotype?
+bact.fit1  <-  glm(phenotype ~ Cronobacter, 
+                    family = binomial("logit"), data = df_mediation)
+
+#Does diet explain phenotype on the presence of Cronobacter?
+both.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter, 
+                  family = binomial("logit"), data = df_mediation)
+
+#Is there a mediation effect here?
+crono = mediate(diba.fit1, both.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
 
 ``` r
-out.fit2  <- glm(phenotype ~ diet_PC1, family = binomial("probit"), data = df_mediation)
-bac.fit2  <-  lm(Gordonibacter ~ diet_PC1, data = df_mediation)
-med.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, family = binomial("probit"), 
-                 data = df_mediation)
+#Gordonibacter
+#Does diet explain phenotype?
+diet.fit2  <- glm(phenotype ~ diet_PC1, 
+                  family = binomial("logit"), data = df_mediation)
 
+#Does diet explain Gordonibacter?
+diba.fit2  <-  lm(Gordonibacter ~ diet_PC1, data = df_mediation)
 
-gordo = mediate(bac.fit2, med.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
+#Does Gordonibacter explain phenotype?
+bact.fit2  <-  glm(phenotype ~ Gordonibacter, 
+                    family = binomial("logit"), data = df_mediation)
+
+#Does diet explain phenotype on the presence of Gordonibacter?
+both.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter, 
+                  family = binomial("logit"), data = df_mediation)
+
+#Is there a mediation effect here?
+gordo = mediate(diba.fit2, both.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
 ```
 
     ## Running nonparametric bootstrap
+
+Notice that in the `mediate` function calls, we’re essentially
+estimating the explanatory potential of diet on our phenotype, in the
+presence of our bacteria, in light of the fact that diet also explains
+our bacterial abundance.
+
+## Investigate results
+
+Let’s take a look at the model summaries. We’ve picked the first
+bacterium, *Cronobacter*, to display a statistically significant
+mediation effect.
+
+### Cronobacter results
+
+``` r
+#Collect the relevant data to display in tables
+res_diet.fit1 <- coefficients(summary(diet.fit1))
+res_diba.fit1 <- coefficients(summary(diba.fit1))
+res_bact.fit1 <- coefficients(summary(bact.fit1))
+res_both.fit1 <- coefficients(summary(both.fit1))
+                      
+#Plot the results in nice looking tables:
+kable(res_diet.fit1, digits = 3, 
+      caption = "Diet significantly explains phenotype (Estimate of 0.241).")
+```
+
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |    0.106 |      0.155 |   0.687 |       0.492 |
+| diet_PC1    |    0.241 |      0.122 |   1.972 |       0.049 |
+
+Diet significantly explains phenotype (Estimate of 0.241).
+
+``` r
+kable(res_diba.fit1, digits = 3, 
+      caption = "Diet significantly explains Cronobacter.")
+```
+
+|             | Estimate | Std. Error | t value | Pr(\>\|t\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |   -2.461 |      0.114 | -21.676 |       0.000 |
+| diet_PC1    |    0.182 |      0.088 |   2.061 |       0.041 |
+
+Diet significantly explains Cronobacter.
+
+``` r
+kable(res_bact.fit1, digits = 3, 
+      caption = "Cronobacter significantly explains phenotype. 
+      This comes as no surprise as saw this in our initial differential abundance analysis.")
+```
+
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |    0.882 |      0.332 |   2.655 |       0.008 |
+| Cronobacter |    0.310 |      0.114 |   2.722 |       0.006 |
+
+Cronobacter significantly explains phenotype. This comes as no surprise
+as saw this in our initial differential abundance analysis.
+
+``` r
+kable(res_both.fit1, digits = 3, 
+      caption = "In the presence of Cronobacter, diet significantly explains phenotype less well (Estimate of 0.199).")
+```
+
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |    0.831 |      0.337 |   2.467 |       0.014 |
+| diet_PC1    |    0.199 |      0.124 |   1.601 |       0.109 |
+| Cronobacter |    0.288 |      0.115 |   2.496 |       0.013 |
+
+In the presence of Cronobacter, diet significantly explains phenotype
+less well (Estimate of 0.199).
+
+Looks like we may have a mediation effect here, so let’s check out the
+results of our mediation analysis: ACME stands for Average Causal
+Mediation Effect, whereas ADE stands for Average Direct Effect.
 
 ``` r
 summary(crono)
@@ -1757,16 +1941,16 @@ summary(crono)
     ## Nonparametric Bootstrap Confidence Intervals with the Percentile Method
     ## 
     ##                           Estimate 95% CI Lower 95% CI Upper p-value  
-    ## ACME (control)            0.012299     0.000829         0.03   0.030 *
-    ## ACME (treated)            0.012063     0.000827         0.03   0.030 *
-    ## ADE (control)             0.047536    -0.007602         0.10   0.092 .
-    ## ADE (treated)             0.047300    -0.007617         0.10   0.092 .
-    ## Total Effect              0.059599     0.006092         0.12   0.030 *
-    ## Prop. Mediated (control)  0.206366    -0.011565         1.13   0.060 .
-    ## Prop. Mediated (treated)  0.202396    -0.011243         1.13   0.060 .
-    ## ACME (average)            0.012181     0.000828         0.03   0.030 *
-    ## ADE (average)             0.047418    -0.007609         0.10   0.092 .
-    ## Prop. Mediated (average)  0.204381    -0.011404         1.13   0.060 .
+    ## ACME (control)            0.012500     0.000837         0.03   0.030 *
+    ## ACME (treated)            0.012209     0.000834         0.03   0.030 *
+    ## ADE (control)             0.047085    -0.008466         0.10   0.094 .
+    ## ADE (treated)             0.046795    -0.008487         0.10   0.094 .
+    ## Total Effect              0.059294     0.006317         0.12   0.030 *
+    ## Prop. Mediated (control)  0.210805    -0.011539         1.18   0.060 .
+    ## Prop. Mediated (treated)  0.205907    -0.011134         1.19   0.060 .
+    ## ACME (average)            0.012354     0.000836         0.03   0.030 *
+    ## ADE (average)             0.046940    -0.008476         0.10   0.094 .
+    ## Prop. Mediated (average)  0.208356    -0.011337         1.19   0.060 .
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -1776,10 +1960,84 @@ summary(crono)
     ## Simulations: 1000
 
 ``` r
-plot(crono)
+#Let's view the same information in a figure:
+plot(crono, main = "Cronobacter as a mediator of the effect of diet on schizophrenia")
 ```
 
-![](README_files/figure-gfm/discuss%20mediation%20models-1.png)<!-- -->
+![](README_files/figure-gfm/plot%20crono-1.png)<!-- -->
+
+Here, we see that our estimate of the Average Causal Mediation Effect
+lies outside of zero. We have partial mediation. In other words, in this
+example, it could be the case that part of the effect of diet on
+schizophrenia happens because diet also influences *Cronobacter*, which
+in turn influences schizophrenia.
+
+### Gordonibacter results
+
+Now, let’s take a look at a negative example with *Gordonibacter*.
+
+``` r
+#Collect the relevant data to display in tables
+res_diet.fit2 <- coefficients(summary(diet.fit2))
+res_diba.fit2 <- coefficients(summary(diba.fit2))
+res_bact.fit2 <- coefficients(summary(bact.fit2))
+res_both.fit2 <- coefficients(summary(both.fit2))
+                      
+#Plot the results in nice looking tables:
+kable(res_diet.fit2, digits = 3, 
+      caption = "Diet significantly explains phenotype (Estimate of 0.241).")
+```
+
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |    0.106 |      0.155 |   0.687 |       0.492 |
+| diet_PC1    |    0.241 |      0.122 |   1.972 |       0.049 |
+
+Diet significantly explains phenotype (Estimate of 0.241).
+
+``` r
+kable(res_diba.fit2, digits = 3, 
+      caption = "Diet does not significantly explain Gordonibacter")
+```
+
+|             | Estimate | Std. Error | t value | Pr(\>\|t\|) |
+|:------------|---------:|-----------:|--------:|------------:|
+| (Intercept) |   -1.734 |      0.114 | -15.175 |       0.000 |
+| diet_PC1    |   -0.037 |      0.089 |  -0.410 |       0.682 |
+
+Diet does not significantly explain Gordonibacter
+
+``` r
+kable(res_bact.fit2, digits = 3, 
+      caption = "Gordonibacter significantly explains phenotype. 
+      This comes as no surprise as saw this in our initial differential abundance analysis.")
+```
+
+|               | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:--------------|---------:|-----------:|--------:|------------:|
+| (Intercept)   |    0.607 |      0.252 |   2.409 |       0.016 |
+| Gordonibacter |    0.285 |      0.110 |   2.592 |       0.010 |
+
+Gordonibacter significantly explains phenotype. This comes as no
+surprise as saw this in our initial differential abundance analysis.
+
+``` r
+kable(res_both.fit2, digits = 3, 
+      caption = "In the presence of Gordonibacter, diet explains phenotype even better (Estimate of 0.263).")
+```
+
+|               | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:--------------|---------:|-----------:|--------:|------------:|
+| (Intercept)   |    0.633 |      0.255 |   2.484 |       0.013 |
+| diet_PC1      |    0.263 |      0.125 |   2.099 |       0.036 |
+| Gordonibacter |    0.299 |      0.111 |   2.686 |       0.007 |
+
+In the presence of Gordonibacter, diet explains phenotype even better
+(Estimate of 0.263).
+
+Looks like we may have a mediation effect here, so let’s check out the
+results of our mediation analysis: Again, ACME stands for Average Causal
+Mediation Effect, whereas ADE stands for Average Direct Effect.
 
 ``` r
 summary(gordo)
@@ -1791,16 +2049,16 @@ summary(gordo)
     ## Nonparametric Bootstrap Confidence Intervals with the Percentile Method
     ## 
     ##                          Estimate 95% CI Lower 95% CI Upper p-value  
-    ## ACME (control)           -0.00260     -0.01767         0.01   0.720  
-    ## ACME (treated)           -0.00254     -0.01723         0.01   0.720  
-    ## ADE (control)             0.06250      0.00726         0.12   0.038 *
-    ## ADE (treated)             0.06256      0.00727         0.12   0.038 *
-    ## Total Effect              0.05996      0.00156         0.12   0.050 *
-    ## Prop. Mediated (control) -0.04335     -0.67302         0.36   0.758  
-    ## Prop. Mediated (treated) -0.04244     -0.66166         0.36   0.758  
-    ## ACME (average)           -0.00257     -0.01762         0.01   0.720  
-    ## ADE (average)             0.06253      0.00727         0.12   0.038 *
-    ## Prop. Mediated (average) -0.04290     -0.66740         0.36   0.758  
+    ## ACME (control)           -0.00260     -0.01755         0.01   0.720  
+    ## ACME (treated)           -0.00253     -0.01708         0.01   0.720  
+    ## ADE (control)             0.06191      0.00675         0.12   0.038 *
+    ## ADE (treated)             0.06198      0.00675         0.12   0.038 *
+    ## Total Effect              0.05938      0.00130         0.12   0.050 *
+    ## Prop. Mediated (control) -0.04374     -0.67937         0.36   0.758  
+    ## Prop. Mediated (treated) -0.04266     -0.66939         0.36   0.758  
+    ## ACME (average)           -0.00257     -0.01749         0.01   0.720  
+    ## ADE (average)             0.06194      0.00675         0.12   0.038 *
+    ## Prop. Mediated (average) -0.04320     -0.67536         0.36   0.758  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -1810,10 +2068,15 @@ summary(gordo)
     ## Simulations: 1000
 
 ``` r
-plot(gordo)
+#Let's view the same information in a figure:
+plot(gordo, main = "Gordonibacter as a mediator of the effect of diet on schizophrenia")
 ```
 
-![](README_files/figure-gfm/discuss%20mediation%20models-2.png)<!-- -->
+![](README_files/figure-gfm/plot%20gordo-1.png)<!-- -->
+
+Here, we see that our estimate of the Average Causal Mediation Effect
+lies squarely on zero. No mediation. This makes sense, as diet couldn’t
+significantly explain the abundance of Gordonibacter.
 
 ------------------------------------------------------------------------
 
@@ -1833,7 +2096,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-04-26
+    ##  date     2023-04-27
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
