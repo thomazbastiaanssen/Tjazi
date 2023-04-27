@@ -1827,7 +1827,7 @@ both.fit1  <- glm(phenotype ~ diet_PC1 + Cronobacter,
                   family = binomial("logit"), data = df_mediation)
 
 #Is there a mediation effect here?
-crono = mediate(diba.fit1, both.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = TRUE)
+crono = mediate(diba.fit1, both.fit1, treat = 'diet_PC1', mediator = 'Cronobacter', boot = T)
 ```
 
     ## Running nonparametric bootstrap
@@ -1850,7 +1850,7 @@ both.fit2  <- glm(phenotype ~ diet_PC1 + Gordonibacter,
                   family = binomial("logit"), data = df_mediation)
 
 #Is there a mediation effect here?
-gordo = mediate(diba.fit2, both.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = TRUE)
+gordo = mediate(diba.fit2, both.fit2, treat = 'diet_PC1', mediator = 'Gordonibacter', boot = T)
 ```
 
     ## Running nonparametric bootstrap
@@ -1915,7 +1915,7 @@ as saw this in our initial differential abundance analysis.
 
 ``` r
 kable(res_both.fit1, digits = 3, 
-      caption = "In the presence of Cronobacter, diet significantly explains phenotype less well (Estimate of 0.199).")
+      caption = "In the presence of Cronobacter, diet significantly explains phenotype less well\n(Estimate of 0.199).")
 ```
 
 |             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
@@ -2023,7 +2023,7 @@ surprise as saw this in our initial differential abundance analysis.
 
 ``` r
 kable(res_both.fit2, digits = 3, 
-      caption = "In the presence of Gordonibacter, diet explains phenotype even better (Estimate of 0.263).")
+      caption = "In the presence of Gordonibacter, diet explains phenotype even better\n(Estimate of 0.263).")
 ```
 
 |               | Estimate | Std. Error | z value | Pr(\>\|z\|) |
