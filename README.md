@@ -1783,17 +1783,24 @@ df_mediation <- data.frame(
 
 ## Fit models
 
-For mediation analysis, we need to consider a few models.
+For mediation analysis, we need to consider a few models. Microbes will
+be playing the role of (potential) mediator here.
 
-- First, we estimate the effect of diet on our microbe of interest:
-  $microbe \sim diet$. Does diet explain phenotype? If yes, we can
+- First, we estimate the effect of diet on our phenotype:
+  $phenotype \sim diet$. Does diet explain phenotype? If yes, we can
   proceed.
 
 - Second, we estimate the effect of the microbe on our phenotype of
   interest: $phenotype \sim microbe$. Does the microbe also explain
-  phenotype? If also yes, we have a potential mediation on our hands.
+  phenotype? If also yes, great, we have a potential mediation on our
+  hands.
 
-- Third, we estimate the *joint* effect of diet and the microbe on our
+- Third, we estimate the effect of diet on our microbe of interest:
+  $microbe \sim diet$. Does diet explain the abundance of our microbe?
+  If yes, we can proceed. Now things are getting interesting as we have
+  the scenario we laid out earlier.
+
+- Fourth, we estimate the *joint* effect of diet and the microbe on our
   phenotype of interest: $phenotype \sim diet + microbe$. Does diet now
   explain phenotype worse in the presence of the microbe? If so, we have
   a potential mediation on our hands. In the case that diet no longer
@@ -1915,7 +1922,8 @@ as saw this in our initial differential abundance analysis.
 
 ``` r
 kable(res_both.fit1, digits = 3, 
-      caption = "In the presence of Cronobacter, diet significantly explains phenotype less well\n(Estimate of 0.199).")
+      caption = "In the presence of Cronobacter, diet significantly explains phenotype less well
+      (Estimate of 0.199).")
 ```
 
 |             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
@@ -2023,7 +2031,8 @@ surprise as saw this in our initial differential abundance analysis.
 
 ``` r
 kable(res_both.fit2, digits = 3, 
-      caption = "In the presence of Gordonibacter, diet explains phenotype even better\n(Estimate of 0.263).")
+      caption = "In the presence of Gordonibacter, diet explains phenotype even better
+      (Estimate of 0.263).")
 ```
 
 |               | Estimate | Std. Error | z value | Pr(\>\|z\|) |
