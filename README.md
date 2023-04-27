@@ -1812,7 +1812,8 @@ To check for a mediation effect, we use the `mediation` package.
 
 In our case, the phenotype (schizophrenia diagnosis) is a binary
 outcome. Because of that, we’ll use a logistic regression model rather
-than a ‘regular’ linear model there.
+than a ‘regular’ linear model whenever we’re trying to explain
+phenotype. We’ll use a link function for this.
 
 Let’s give it a shot with our two bacteria.
 
