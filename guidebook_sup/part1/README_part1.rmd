@@ -160,7 +160,7 @@ cols[unique(barlong$Microbe)=="Rare Taxa"]="dark gray"
 #Create the stacked barplots using ggplot2
 barlong %>%
   ggplot(aes(x = ID, y = value, fill = Microbe)) + 
-  geom_bar(stat = "identity", col = "black", size = .2, width = 1) + 
+  geom_bar(stat = "identity", col = "black", linewidth = .2, width = 1) + 
   facet_row(~Group, scales = "free_x") +
   #Adjust layout and appearance
   scale_fill_manual(values = cols, labels = unique(sub(".*ales_", "", barlong$Microbe))) + 
@@ -203,16 +203,18 @@ alpha_diversity %>%
   pivot_longer(!c(Legend, Sex, Smoker)) %>%
 
   #Pipe it all directly into ggplot2
-  ggplot(aes(x     = Legend,
-             y     = value, 
-             fill  = Legend, 
-             shape = Sex, 
-             group = Legend)) + 
-  geom_boxplot(alpha = 1/2, coef = 100) + 
-  geom_beeswarm(size = 4, cex = 3) + 
+  ggplot(aes(x      = Legend,
+             y      = value, 
+             fill   = Legend, 
+             shape  = Sex, 
+             group  = interaction(Legend, Sex))) + 
+  
+  #Let's use position_dodge() to visually separate males and females by group
+  geom_boxplot(alpha = 1/2, coef = 100, position = position_dodge(1)) + 
+  geom_beeswarm(size = 2, cex = 3, dodge.width = 1) + 
   facet_wrap(~name, scales = "free") + theme_bw()  +
   scale_fill_manual(values = c("healthy"        = "#fe9929", 
-                                "schizophrenia" = "#8c6bb1")) + 
+                               "schizophrenia"  = "#8c6bb1")) + 
   scale_shape_manual(values = c("female" = 21, 
                                 "male"   = 22)) +  
   ylab("") + xlab("") 
@@ -220,7 +222,7 @@ alpha_diversity %>%
 
 ```
 
-When eyeballing these figures, we might be able to spot an effect of both sex and group. Note how in the Chao1 metric, the female healthy volunteers have a much higher diversity than the males. Nevertheless, after taking this sex effect into account, there is still seems to be an effect of group. Rather than relying on eyeballing though, statistical testing will help us determine what to say about these results. 
+When eyeballing these figures, we might be able to spot an effect of both sex and group. Note how in all three alpha diversity metrics the female healthy volunteers seem to have a higher diversity than the males. Nevertheless, after taking this sex effect into account, there is still seems to be an effect of group. Rather than relying on eyeballing though, statistical testing will help us determine what to say about these results. 
 
 ## 2.1 Testing for differences in Alpha diversity
 
@@ -434,6 +436,8 @@ kable(anova(beta_disp), digits = 4)
 
 ```
 Here, we can see that while there is a significant difference in the spreads per group, the difference is not very large: We see an average distance to the centroid of `r round(beta_disp$group.distances[1], 2)` healthy controls  vs `r round(beta_disp$group.distances[2])` in schizophrenia. Keeping this in mind, let's perform a PERMANOVA.
+
+\newpage 
 
 ### Code chunk: Performing a PERMANOVA test
 

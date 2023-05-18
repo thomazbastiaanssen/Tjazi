@@ -55,10 +55,8 @@ First, Let's load the schizophrenia data set into our environment. We'll also qu
 #Set a seed for the purposes of reproducibility in this document.
 set.seed(1)
 
-#Load the mediation library
+#Load the mediation library and the relevant files for demo
 library(mediation)
-
-#Load relevant files for demo
 data(guidebook_data)
 counts   <- counts ; metadata <- metadata ; diet <- diet
 
@@ -94,27 +92,26 @@ That said, let's convert the dietary frequency categories into numbers and then 
 ```{r diet pca}
 diet.pca = diet %>% 
   
-  #Replace text with numbers
+#Replace text with numbers
   mutate(across(.cols = everything(), ~str_replace( ., "hardly",                      "1" )),
          across(.cols = everything(), ~str_replace( ., "often",                       "2" )),
          across(.cols = everything(), ~str_replace( ., "twice or three times a week", "3" )),
          across(.cols = everything(), ~str_replace( ., "every day",                   "4" )), 
          across(.cols = everything(), as.numeric)) %>% 
-  
-  #Center and rescale data
-  scale()  %>% 
-  
-  #Perform a principal component analysis
-  prcomp() 
 
-#Take the loadings of the first principal component
+#Center and rescale data, then perform a principal component analysis
+  scale() %>%   
+  prcomp()       
+
+#Let's check out the loadings of the first principal component using a histogram 
 PC1 = diet.pca$x[,1]
-
-#Let's check it out using a histogram
 hist(PC1)
+
 ```
 
-## Prepare datas for mediation analysis
+It's always a good idea to visually inspect your data. From this histogram, it looks like there may be two roughly normal populations in our first principal component. We'll take note of this and proceed with our preparations. 
+
+## Prepare data for mediation analysis
 We'll take two of the bacteria, _Cronobacter_ and _Gordonibacter_, that were found to be statistically associated with schizophrenia in our initial analysis. We'll also take the first component of the dietary intake PCA we generated above. 
 
 ### Code chunk: Preparing for mediation analysis
@@ -128,6 +125,9 @@ df_mediation <- data.frame(
   )
 
 ```
+
+\newpage
+
 ## Fit models
 For mediation analysis, we need to consider a few models. Microbes will be playing the role of (potential) mediator here.
 
@@ -189,6 +189,8 @@ gordo = mediate(diba.fit2, both.fit2, treat = 'diet_PC1', mediator = 'Gordonibac
 
 Notice that in the `mediate` function calls, we're essentially estimating the explanatory potential of diet on our phenotype, in the presence of our bacteria, in light of the fact that diet also explains our bacterial abundance. 
 
+\newpage
+
 ## Investigate results
 Let's take a look at the model summaries. We've picked the first bacterium, _Cronobacter_, to display a statistically significant mediation effect. 
 
@@ -226,6 +228,9 @@ plot(crono, main = "Cronobacter as a mediator of the effect of diet on schizophr
 ```
 
 Here, we see that our estimate of the Average Causal Mediation Effect lies outside of zero. We have partial mediation. In other words, in this example, it could be the case that part of the effect of diet on schizophrenia happens because diet also influences _Cronobacter_, which in turn influences schizophrenia. 
+
+
+\newpage
 
 Now, let's take a look at a negative example with _Gordonibacter_.
 
@@ -311,6 +316,7 @@ Though this example uses metabolites and functions, `anansi` is able to handle a
 The Y and X refer to the position these measurements will have in the linear modeling framework: 
 
 $$Y \sim X \times {\text{covariates}}$$
+\newpage
 
 ### A note on functional microbiome data
 
@@ -354,6 +360,8 @@ The `anansiWeb` format is a necessary input file for the main `anansi` workflow.
 web <- weaveWebFromTables(tableY = t1, tableX = t2, dictionary = anansi_dic)
 ```
 
+\newpage
+
 ## Run anansi
 
 The main workspider in this package is called `anansi`. Generally, you want to give it three arguments. First, there's `web`, which is an `anansiWeb` object, such as the one we generated in the above step. Second, there's `formula`, which should be a formula. For instance, to assess differential associations between treatments, we use the formula `~Treatment`, provided we have a column with that name in our `metadata` object, the Third argument. 
@@ -386,6 +394,9 @@ anansiLong <- spinToLong(anansi_output = anansi_out, translate = T,
 #Only consider interactions where the entire model fits well enough. 
 anansiLong <- anansiLong[anansiLong$model_full_q.values < 0.1,]
 ```
+
+\newpage
+
 ## Plot the results
 
 The long format can be helpful to plug the data into `ggplot2`. Here, we recreate part of the results from the FMT Aging study.
@@ -703,11 +714,12 @@ vola_out %>%
 
 # 5. Discussion
 
-Here, we have presented what a fairly standard microbiome analysis might look like. The main points we would take from the analysis would be that there is indeed a difference in the microbiome between our cohort of patients with schizophrenia and healthy volunteers, in terms of composition (beta diversity), diversity (alpha diversity) as well as in differential feature abundance, both on the taxonomical level as well as the functional level. We could then go on and comment on what specific functions in the microbiome may explain the differences in our cohort. For instance, differences in the metabolism of DOPAC and glutamate, precursor molecules for the important neurotransmitters dopamine and GABA, could be pointed out and compared to literature. In our limitations section, we would stress that the effect sizes we found were quite small and that we found an effect of smoking and of sex as well. 
+Here, we have presented four separate primers for techniques from four distinct topics, namely causal inference, multi-omics integration, mesoscale analysis and temporal analysis, and how one may go about applying them to microbiome-gut-brain axis experiments. 
+While these techniques and corresponding fields may seem unrelated, we are of the opinion that all four will be essential to move the microbiome-gut-brain axis field forward towards an ecology oriented, mechanistic understanding. 
 
-Of course, this document is just a template. Depending on the experimental setup, findings and experimental questions, you may want to choose a differing approach. Given the highly complex nature of microbiome data, one should ideally avoid blindly applying models and pipelines without understanding what they are doing. D.R. Cox is famously ascribed the statement: 
+As said in the discussion of part 1 of this perspective, this document is just a template. Depending on the experimental setup, findings and experimental questions, you may want to choose a differing approach. Given the highly complex nature of microbiome data, one should ideally avoid blindly applying models and pipelines without understanding what they are doing. D.R. Cox is famously ascribed the statement: 
 _"Most real life statistical problems have one or more nonstandard features. There are no routine statistical questions; only questionable statistical routines."_
-We find this holds true for the microbiome as well. 
+We find this holds true for the microbiome as well, even more so for these more advanced techniques than for the ones presented in part 1 of this perspective piece. In particular, it is crucial that we apply our biological knowledge to determine how exactly to use these techniques. For instance, when performing a mediation analysis in section 1, it is crucial to have a biological reason why one would expect the effect of a variable on an outcome to be moderated by a second variable. Similarly, with the multi-omics integration using anansi in section 2, we're relying on pre-existing biological knowledge in the form of the KEGG database to only investigate interactions between metabolites and enzymatic functions that could take place, rather than naively assessing all of them. 
 
 Clear communication, both in terms of describing and explaining our methods as well as in terms of figure presentation, are essential for the health of the field. Indeed, failing to do so can lead to confusion among our peers. We hope that both aspiring and veteran bioinformaticians will find our guide helpful. We have tried to model this piece after what we would have loved to have access to ourselves when we first set out to study the microbiome. 
 
