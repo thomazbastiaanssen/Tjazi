@@ -124,7 +124,7 @@ The CLR-transformation is not a *perfect solution* for compositionality - in fac
 Stacked barplots provide a visually appealing overview of the composition of each sample. Normally, no tests are performed here, but they can be helpful to give the data a visual check over and to show obvious shifts in composition between groups. They could be seen as a mix of alpha and beta diversity, as you can look at both the composition of a single sample (alpha) and how much the samples differ from each other (beta). 
 
 ### Code chunk: Generating a stacked barplot form a count table
-```{r Stacked Barplots, message = FALSE, fig.width=16, fig.height=14}
+```{r Stacked_Barplots, message = FALSE, fig.width=16, fig.height=14}
 #Fork off form the untransformed counts table
 bargenus   <- counts
 
@@ -181,7 +181,7 @@ Stacked barplots are helpful because they allow us to _eyeball_ the data, giving
 Another staple in microbiome research is alpha diversity. In a nutshell, alpha diversty is a set of measures that comment on how diverse, complicated and/or rich a single sample is. The three most common metrics for alpha diversity in microbiome research are Chao1, the Simpson Index and Shannon Entropy. 
 
 ### Code chunk: Computing and plotting Alpha diversity from a count table
-```{r Alpha Diversity, cache = TRUE, message = FALSE, warning = FALSE}
+```{r Alpha_Diversity, cache = TRUE, message = FALSE, warning = FALSE}
 #It is important to use the untouched count table here as we're interested in rare taxa.
 
 #Compute alpha diversity using a wrapper around the iNEXT library, 
@@ -235,7 +235,7 @@ According to the STROBE guidelines for observational studies, we should report b
 \newpage
 
 ### Code chunk: Testing for differences in Alpha diversity: Chao1
-```{r Chao1 stats, message = FALSE}
+```{r Chao1_stats, message = FALSE}
 #Fit an unadjusted linear model
 chao1_unadj = lm(Chao1 ~ Legend, alpha_diversity)
 
@@ -257,7 +257,7 @@ kable(res_chao1_adj, digits = 3)
 
 
 ### Code chunk: Testing for differences in Alpha diversity: Shannon Entropy
-```{r Shannon stats, message = FALSE}
+```{r Shannon_stats, message = FALSE}
 #Fit an unadjusted linear model
 shann_unadj = lm(`Shannon Entropy` ~ Legend, alpha_diversity)
 
@@ -278,7 +278,7 @@ kable(res_shann_adj, digits = 3)
 ```
 
 ### Code chunk: Testing for differences in Alpha diversity: Simpson Index
-```{r Simpson stats, message = FALSE}
+```{r Simpson_stats, message = FALSE}
 #Fit an unadjusted linear model
 simps_unadj = lm(`Simpson Index` ~ Legend, alpha_diversity)
 
@@ -463,7 +463,7 @@ Differential abundance of taxa, in this case genera, are perhaps the most common
 
 ### Code chunk: Testing for differentially abundant genera and plotting the results
 
-```{r Differential Abundance, message = FALSE, fig.width=16, fig.height=14, warning = FALSE}
+```{r Differential_Abundance, message = FALSE, fig.width=16, fig.height=14, warning = FALSE}
 
 #This function fits the equivalent of lm(feature ~ Group + Sex + Smoker) for each feature.
 #It also performs an appropriate Benjamini-Hochberg correction on the p-values. 
@@ -480,7 +480,7 @@ genus.glm = fw_glm(x             = genus.exp,
 
 Before we proceed with the demonstration, let's take a quick peek at the output of this function:
 
-```{r Checking out fw_glm output, message = FALSE, fig.width=16, fig.height=14, warning = FALSE}
+```{r Checking_out_fw_glm_output, message = FALSE, fig.width=16, fig.height=14, warning = FALSE}
 glimpse(genus.glm)
 ```
 
@@ -516,7 +516,7 @@ Using a fairly standard cutoff of q < 0.1 we see a fair amount of significant di
 
 \newpage
 
-```{r Plot differentially abundant genera, warning = FALSE, message = FALSE, fig.width=16, fig.height=9}
+```{r Plot_differentially_abundant_genera, warning = FALSE, message = FALSE, fig.width=16, fig.height=9}
 
 #Plot the features that show a group effect at q < 0.1
 genBH <- genus.exp[genus.glm[genus.glm$`Groupschizophrenia Pr(>|t|).BH` < 0.1,"feature"],]
@@ -556,7 +556,7 @@ Functional modules provide many advantages over taxa when it comes to differenti
 
 ### Code chunk: Load the Gut Brain Modules and prepare them for analysis
 
-```{r Load Gut Brain Modules, message = FALSE, cache = T, fig.width=16, fig.height=14}
+```{r Load_Gut_Brain_Modules, message = FALSE, cache = T, fig.width=16, fig.height=14}
 #Ensure reproducibility within this document
 set.seed(1)
 
@@ -612,7 +612,7 @@ Using a fairly standard cutoff of q < 0.2 we see a few hits.
 
 ### Code chunk: Plot the differentially abundant Gut Brain modules
 
-```{r Plot GBMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=7}
+```{r Plot_GBMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=7}
 #Plot the features that show a group effect at q < 0.2
 GBM_BH <- GBMs.exp[GBMs.glm[GBMs.glm$`Groupschizophrenia Pr(>|t|).BH` < 0.2,"feature"],] 
 
@@ -646,7 +646,7 @@ GBM_BH %>%
 
 ### Code chunk: Load the Gut Metabolic Modules and prepare them for analysis
 
-```{r Load Gut Metabolic Modules, message = FALSE, cache = T, fig.width=16, fig.height=18}
+```{r Load_Gut_Metabolic_Modules, message = FALSE, cache = T, fig.width=16, fig.height=18}
 #Ensure reproducibility within this document
 set.seed(1)
 
@@ -704,7 +704,7 @@ Using a fairly standard cutoff of q < 0.2 we see a fair amount of significant di
 
 ### Code chunk: Plot the differentially abundant Gut Metabolic module
 
-```{r Plot GMMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=20}
+```{r Plot_GMMs, message = FALSE, warning = FALSE, fig.width=16, fig.height=20}
 #Plot the features that show a group effect at q < 0.2
 GMM_BH <- GMMs.exp[GMMs.glm[GMMs.glm$`Groupschizophrenia Pr(>|t|).BH` < 0.2,"feature"],] 
 

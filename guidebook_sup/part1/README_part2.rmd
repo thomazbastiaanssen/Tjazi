@@ -16,7 +16,7 @@ All R code used to transform, wrangle (reorganise) and plot the data is also sho
 
 
 
-#Statistical tools        Primarily PERMANOVA, alpha diversity and the CLR transformation.
+#Statistical tools        Primarily the CLR transformation.
 library(Tjazi)            #devtools::install_github("thomazbastiaanssen/Tjazi")
 
 #Data Wrangling
@@ -51,7 +51,7 @@ Here, we will demonstrate how one could go about performing mediation analysis t
 First, Let's load the schizophrenia data set into our environment. We'll also quickly clean and CLR-transform our genus-level count table. 
 
 ### Code chunk: Preparing microbiome data
-```{r setup mediation, eval=TRUE, message = FALSE}
+```{r setup_mediation, eval=TRUE, message = FALSE}
 #Set a seed for the purposes of reproducibility in this document.
 set.seed(1)
 
@@ -89,7 +89,7 @@ Furthermore, we will need to prepare the dietary data. For this study, we have a
 That said, let's convert the dietary frequency categories into numbers and then perform a principal component analysis. 
 
 ### Code chunk: Preparing dietary data
-```{r diet pca}
+```{r diet_pca}
 diet.pca = diet %>% 
   
 #Replace text with numbers
@@ -115,7 +115,7 @@ It's always a good idea to visually inspect your data. From this histogram, it l
 We'll take two of the bacteria, _Cronobacter_ and _Gordonibacter_, that were found to be statistically associated with schizophrenia in our initial analysis. We'll also take the first component of the dietary intake PCA we generated above. 
 
 ### Code chunk: Preparing for mediation analysis
-```{r construct mediation df}
+```{r construct_mediation_df}
 
 df_mediation <- data.frame(
   Cronobacter    = unlist(genus.exp["Enterobacteriaceae_Cronobacter",]),
@@ -145,7 +145,7 @@ In our case, the phenotype (schizophrenia diagnosis) is a binary outcome. Becaus
 Let's give it a shot with our two bacteria. 
 
 ### Code chunk: Fitting statistical models 
-```{r fit mediation models}
+```{r fit_mediation_models}
 #Cronobacter
 #Does diet explain phenotype?
 diet.fit1  <- glm(phenotype ~ diet_PC1, 
@@ -196,7 +196,7 @@ Notice that in the `mediate` function calls, we're essentially estimating the ex
 Let's take a look at the model summaries. We've picked the first bacterium, _Cronobacter_, to display a statistically significant mediation effect. 
 
 ### Code chunk: Cronobacter results 
-```{r discuss crono}
+```{r discuss_crono}
 #Collect the relevant data to display in tables
 res_diet.fit1 <- coefficients(summary(diet.fit1))
 res_diba.fit1 <- coefficients(summary(diba.fit1))
@@ -220,7 +220,7 @@ Looks like we may have a mediation effect here, so let's check out the results o
 ACME stands for Average Causal Mediation Effect, whereas ADE stands for Average Direct Effect. 
 
 ### Code chunk: Cronobacter mediation figure 
-```{r plot crono}
+```{r plot_crono}
 summary(crono)
 
 #Let's view the same information in a figure:
@@ -236,7 +236,7 @@ Here, we see that our estimate of the Average Causal Mediation Effect lies outsi
 Now, let's take a look at a negative example with _Gordonibacter_.
 
 ### Code chunk: Gordonibacter results
-```{r discuss gordo}
+```{r discuss_gordo}
 #Collect the relevant data to display in tables
 res_diet.fit2 <- coefficients(summary(diet.fit2))
 res_diba.fit2 <- coefficients(summary(diba.fit2))
@@ -261,7 +261,7 @@ Looks like we may have a mediation effect here, so let's check out the results o
 Again, ACME stands for Average Causal Mediation Effect, whereas ADE stands for Average Direct Effect.
 
 ### Code chunk: Gordonibacter mediation figure
-```{r plot gordo}
+```{r plot_gordo}
 summary(gordo)
 
 #Let's view the same information in a figure:
@@ -289,7 +289,7 @@ We'll load a complementary training data set using `data(FMT_data)`. This loads 
 A very early version of `anansi` was used to generate "Extended Data Fig. 7" in that paper. 
 
 ### Code chunk: Load libraries and data
-```{r setup anansi, eval=TRUE, message = FALSE}
+```{r setup_anansi, eval=TRUE, message = FALSE}
 #install and load anansi
 #devtools::install_github("thomazbastiaanssen/anansi")
 library(anansi)
@@ -731,6 +731,6 @@ Clear communication, both in terms of describing and explaining our methods as w
 \newpage
 
 # Session Info
-```{r session info, eval=TRUE}
+```{r session_info, eval=TRUE}
 sessioninfo::session_info()
 ```
