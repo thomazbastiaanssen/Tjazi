@@ -148,9 +148,7 @@ called $\bf{x}$ with size $D$. We’ll refer to the taxa - or more
 generally the elements - of this vector $\bf{x}$ as ${x}_1$ - ${x}_D$.
 Then, CLR-transforming that vector $\bf{x}$ would look like this:
 
-$$
-clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \rbrace 
-$$
+${clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \rbrace}$
 
 Where ${G({\bf x})}$ is the geometric mean of $\bf{x}$. Let’s go through
 it step by step.
@@ -2106,7 +2104,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-04-27
+    ##  date     2023-07-18
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
