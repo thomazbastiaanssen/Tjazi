@@ -34,14 +34,18 @@ looking at a human cohort starring in the *Metagenome-wide association
 of gut microbiome features for schizophrenia* study (DOI:
 10.1038/s41467-020-15457-9). After downloading the data it was
 simplified by summing together all strains by genus. This will make it
-easier to analyse without access to a server. Briefly, in this data set,
-we have WGS data from faecal samples from both patients with
-schizophrenia and healthy volunteers, which will be referred to as
-“healthy” in the Legends. This data has been included in the `Tjazi`
-library on github for easy access purposes. Notably, we’ll be using
-smoking status and sex to demonstrate including a covariate in the
-analysis. All R code used to transform, wrangle (reorganise) and plot
-the data is also shown below as to hopefully provide a toolkit for
+easier to analyse without access to a server. For the set of operations
+used to pre-process, please see section [Download and pre-process
+microbiome
+data](https://github.com/thomazbastiaanssen/Tjazi/tree/master#gathering-and-preparing-our-data)
+in the supplementary materials of part II of this perspective piece.
+Briefly, in this data set, we have WGS data from faecal samples from
+both patients with schizophrenia and healthy volunteers, which will be
+referred to as “healthy” in the Legends. This data has been included in
+the `Tjazi` library on github for easy access purposes. Notably, we’ll
+be using smoking status and sex to demonstrate including a covariate in
+the analysis. All R code used to transform, wrangle (reorganise) and
+plot the data is also shown below as to hopefully provide a toolkit for
 aspiring and veteran bioinformaticians alike. It should be noted that
 the analysis performed here may not perfectly correspond to the one
 performed in the original 2020 manuscript, nor does the outcome (though
@@ -148,7 +152,7 @@ called $\bf{x}$ with size $D$. We’ll refer to the taxa - or more
 generally the elements - of this vector $\bf{x}$ as ${x}_1$ - ${x}_D$.
 Then, CLR-transforming that vector $\bf{x}$ would look like this:
 
-${clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \rbrace}$
+$${clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \rbrace}$$
 
 Where ${G({\bf x})}$ is the geometric mean of $\bf{x}$. Let’s go through
 it step by step.
@@ -1148,14 +1152,36 @@ query <- "2021-03-31.ZhuF_2020.relative_abundance|2021-03-31.ZhuF_2020.gene_fami
 ZhuF <- curatedMetagenomicData(query, counts = T, dryrun = F)
 
 #Extract the relevant data from complex SummarizedExperiment objects
-Zhu_F_gene_families = as.matrix(SummarizedExperiment::assay(ZhuF[[1]]))
-Zhu_F_microbiome    = SummarizedExperiment::assay(ZhuF[[2]])
-Zhu_F_metadata      = data.frame(SummarizedExperiment::colData(ZhuF[[2]]))
+Zhu_F_gene_families = as.matrix(SummarizedExperiment::assay(ZhuF[[1]]))     #Functions
+Zhu_F_microbiome    = data.frame(SummarizedExperiment::assay(ZhuF[[2]]))    #Taxa
+Zhu_F_metadata      = data.frame(SummarizedExperiment::colData(ZhuF[[2]]))  #Metadata
+
+genus_lv_counts <- Zhu_F_microbiome %>% 
+  rownames_to_column("X") %>%
+  
+  #Collapse to genus level
+  mutate(X = str_remove(X, "\\|s__.*")) %>% 
+  group_by(X) %>% 
+  summarise(across(everything(), sum)) %>% 
+  ungroup() %>% 
+  
+  #Clean up the names
+  mutate(X = str_remove(X, ".*\\|f__")) %>% 
+  mutate(X = str_replace(X, "\\|g__", "_")) %>% 
+  mutate(X = str_replace(X, "Clostridiales_unclassified_", "Clostridiales_")) %>% 
+  filter(X != "Clostridiales_Clostridiales_unclassified") %>% 
+  
+  #Restore row.names
+  column_to_rownames("X")
+
+#Should be identical to file used
+waldo::compare(sort(row.names(genus_lv_counts)), sort(row.names(counts)))
 
 #Now that we have our data, we can write the individual tables to csv files. 
 #We'll focus on the gene families here, they're necessary to compute Gut Brain modules.
 
 write.csv(Zhu_F_gene_families, file = "uniref90.csv")
+write.csv(Zhu_F_microbiome,    file = "counts.csv")
 ```
 
 ## Convert to KEGG orthologues
