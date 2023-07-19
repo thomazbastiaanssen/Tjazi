@@ -152,7 +152,7 @@ called $\bf{x}$ with size $D$. We’ll refer to the taxa - or more
 generally the elements - of this vector $\bf{x}$ as ${x}_1$ - ${x}_D$.
 Then, CLR-transforming that vector $\bf{x}$ would look like this:
 
-$${clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf{x}})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf{x}})} \right) \right \rbrace}$$
+$$`clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf{x}})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf{x}})} \right) \right \rbrace`$$
 
 Where ${G({\bf x})}$ is the geometric mean of $\bf{x}$. Let’s go through
 it step by step.
@@ -273,14 +273,15 @@ barlong %>%
     ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
     ## ℹ Please use `linewidth` instead.
 
-![](README_files/figure-gfm/Stacked%20Barplots-1.png)<!-- --> Stacked
-barplots are helpful because they allow us to *eyeball* the data, giving
-us an idea of the experimental setup in the case of more complex
-designs. They also allow us to get a general sense of the effects we may
-expect and about the general levels of variance within and between
-groups. In this case, nothing in particular stands out. These samples
-look like they could have come from human microbiome sequencing, which
-is exactly what we want!
+![](README_files/figure-gfm/Stacked%20Barplots-1.png)<!-- -->
+
+Stacked barplots are helpful because they allow us to *eyeball* the
+data, giving us an idea of the experimental setup in the case of more
+complex designs. They also allow us to get a general sense of the
+effects we may expect and about the general levels of variance within
+and between groups. In this case, nothing in particular stands out.
+These samples look like they could have come from human microbiome
+sequencing, which is exactly what we want!
 
 ------------------------------------------------------------------------
 
@@ -930,8 +931,9 @@ post-hoc correction and how many figures to expect.
 hist(GBMs.glm$`Groupschizophrenia Pr(>|t|).BH`, xlim = c(0, 1), breaks = 20)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- --> Using a
-fairly standard cutoff of q \< 0.2 we see a few hits.
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+Using a fairly standard cutoff of q \< 0.2 we see a few hits.
 
 ### Code chunk: Plot the differentially abundant Gut Brain modules
 
@@ -1554,12 +1556,14 @@ $$Y \sim X \times {\text{covariates}}$$
 
 Two common questions in the host-microbiome field are “Who’s there?” and
 “What are they doing?”.  
+
 Techniques like 16S sequencing and shotgun metagenomics sequencing are
 most commonly used to answer the first question. The second question can
 be a bit more tricky - often we’ll need functional inference software to
 address them. For 16S sequencing, algorithms like `PICRUSt2` and
 `Piphillin` can be used to infer function. For shotgun metagenomics,
 `HUMANn3` in the bioBakery suite or `woltka` can be used.  
+
 All of these algorithms can produce functional count data in terms of
 KEGG Orthologues (KOs). These tables can be directly plugged in to
 `anansi`.
