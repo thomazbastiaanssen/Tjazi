@@ -728,7 +728,7 @@ query <- "2021-03-31.ZhuF_2020.relative_abundance|2021-03-31.ZhuF_2020.gene_fami
 ZhuF <- curatedMetagenomicData(query, counts = T, dryrun = F)
 
 #Extract the relevant data from complex SummarizedExperiment objects
-Zhu_F_gene_families = as.matrix(SummarizedExperiment::assay(ZhuF[[1]]))     #Functions
+Zhu_F_gene_families = as.matrix( SummarizedExperiment::assay(ZhuF[[1]]))     #Functions
 Zhu_F_microbiome    = data.frame(SummarizedExperiment::assay(ZhuF[[2]]))    #Taxa
 Zhu_F_metadata      = data.frame(SummarizedExperiment::colData(ZhuF[[2]]))  #Metadata
 
