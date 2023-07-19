@@ -14,7 +14,7 @@ After downloading the data it was simplified by summing together all
 strains by genus. This will make it easier to analyse without access to
 a server. For the set of operations used to pre-process, please see
 section [Download and pre-process microbiome
-data](https://github.com/thomazbastiaanssen/Tjazi/blob/master/guidebook_sup/part2/README_part2.md)
+data](https://github.com/thomazbastiaanssen/Tjazi/blob/master/guidebook_sup/part2/README_part2.md#gathering-and-preparing-our-data-1)
 in this document. Briefly, in this data set, we have WGS data from
 faecal samples from both patients with schizophrenia and healthy
 volunteers, which will be referred to as “healthy” in the Legends. This
@@ -1140,7 +1140,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-07-18
+    ##  date     2023-07-19
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────

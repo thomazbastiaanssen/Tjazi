@@ -10,7 +10,7 @@ simplified by summing together all strains by genus. This will make it
 easier to analyse without access to a server. For the set of operations
 used to pre-process, please see section [Download and pre-process
 microbiome
-data](https://github.com/thomazbastiaanssen/Tjazi/blob/master/guidebook_sup/part2/README_part2.md)
+data](https://github.com/thomazbastiaanssen/Tjazi/blob/master/guidebook_sup/part2/README_part2.md#gathering-and-preparing-our-data-1)
 in the supplementary materials of part II of this perspective piece.
 Briefly, in this data set, we have WGS data from faecal samples from
 both patients with schizophrenia and healthy volunteers, which will be
@@ -121,7 +121,9 @@ called $\bf{x}$ with size $D$. We’ll refer to the taxa - or more
 generally the elements - of this vector $\bf{x}$ as ${x}_1$ - ${x}_D$.
 Then, CLR-transforming that vector $\bf{x}$ would look like this:
 
-$clr({\bf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\bf x})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\bf x})} \right) \right \rbrace$
+``` math
+clr({\mathbf{x}}) = \left \lbrace \ln \left (\frac{{x}_{1}}{G({\mathbf{x}})} \right), \dots, \ln \left (\frac{{x}_{D}}{G({\mathbf{x}})} \right) \right \rbrace
+```
 
 Where ${G({\bf x})}$ is the geometric mean of $\bf{x}$. Let’s go through
 it step by step.
@@ -1107,7 +1109,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-07-18
+    ##  date     2023-07-19
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
