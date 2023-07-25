@@ -38,6 +38,13 @@ library(ggplot2)          #install.packages("ggplot2")
 library(ggforce)          #install.packages("ggforce")
 library(patchwork)        #install.packages("patchwork")
 
+#Section specific packages
+library(mediation)        #install.packages("mediation")
+library(anansi)           #devtools::install_github("thomazbastiaanssen/anansi")
+library(propr)            #devtools::install_github("tpq/propr")
+library(volatility)       #devtools::install_github("thomazbastiaanssen/volatility")
+
+
 #Load prepared data from the schizophrenia study stored in the Tjazi library
 data(guidebook_data)
 ```
@@ -1140,7 +1147,7 @@ sessioninfo::session_info()
     ##  collate  en_IE.UTF-8
     ##  ctype    en_IE.UTF-8
     ##  tz       Europe/Dublin
-    ##  date     2023-07-19
+    ##  date     2023-07-25
     ##  pandoc   2.19.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
@@ -1222,7 +1229,7 @@ sessioninfo::session_info()
     ##  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
     ##  png             0.1-8      2022-11-29 [1] CRAN (R 4.2.1)
     ##  polyclip        1.10-4     2022-10-20 [1] CRAN (R 4.2.1)
-    ##  propr           4.2.6      2019-12-16 [1] CRAN (R 4.2.1)
+    ##  propr         * 4.2.6      2019-12-16 [1] CRAN (R 4.2.1)
     ##  purrr         * 1.0.1      2023-01-10 [1] CRAN (R 4.2.1)
     ##  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
     ##  RColorBrewer    1.1-3      2022-04-03 [1] CRAN (R 4.2.0)

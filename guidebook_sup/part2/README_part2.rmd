@@ -30,6 +30,13 @@ library(ggplot2)          #install.packages("ggplot2")
 library(ggforce)          #install.packages("ggforce")
 library(patchwork)        #install.packages("patchwork")
 
+#Section specific packages
+library(mediation)        #install.packages("mediation")
+library(anansi)           #devtools::install_github("thomazbastiaanssen/anansi")
+library(propr)            #devtools::install_github("tpq/propr")
+library(volatility)       #devtools::install_github("thomazbastiaanssen/volatility")
+
+
 #Load prepared data from the schizophrenia study stored in the Tjazi library
 data(guidebook_data)
 
