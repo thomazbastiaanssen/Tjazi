@@ -501,7 +501,7 @@ waldo::compare(sort(row.names(genus_lv_counts)), sort(row.names(counts)))
 #We'll focus on the gene families here, they're necessary to compute Gut Brain modules.
 
 write.csv(Zhu_F_gene_families, file = "uniref90.csv")
-write.csv(Zhu_F_microbiome,    file = "counts.csv")
+write.csv(genus_lv_counts,     file = "counts.csv")
 
 ```
 
